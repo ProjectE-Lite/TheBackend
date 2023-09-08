@@ -3,6 +3,9 @@ from bson.objectid import ObjectId
 import pprint
 from id_generator import *
 from helpingFunction import *
+from userManagement import *
+
+
 
 printer = pprint.PrettyPrinter()
 
@@ -52,7 +55,8 @@ def insertPseudoWork(work, recruiter_id):
     work["recruiter_id"] = recruiter_id
     WorksCollection.insert_one(work)
     RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$addToSet": {"list_of_work": work_id}})
-    # notiUserFieldOfInterested()
+    matchingFieldOfInterested(work["type_of_work"])
+    
     return "you have created work"
 
 
@@ -100,4 +104,43 @@ def initUserStatus(work_id, user_id):
    
 
 
-updateUserStatus(5, "bigbrain", "bigbrain", "bigbrain")
+
+
+
+def isEndRegisteration(work_id):
+    end_registeration = WorksCollection.find_one({"work_id": work_id})["end_registeration"].split('-')
+    
+    end_registeration = datetime(int(end_registeration[0]), int(end_registeration[1]), int(end_registeration[2]), 23, 59, 59)
+
+    today = datetime.now()
+
+    if today > end_registeration:
+        return True
+    else:
+        return False
+
+
+
+    
+    
+
+
+
+def manageUserInWork(work_id):
+    isEnd = isEndRegisteration(work_id)
+    work_cursor = WorksCollection.find_one({"work_id": work_id})
+    num_require = work_cursor["number_requirement"]
+    
+    
+    if isEnd != True and num_require != 0:
+        status = "still_choosing"
+        list_of_candidate = work_cursor["list_of_candidiate"]
+        return {status: list_of_candidate}
+
+    else:
+        status = "choosing_is_completed"
+        list_of_worker = work_cursor["list_of_worker"]
+        return {status: list_of_worker}
+
+    
+print(manageUserInWork(3))

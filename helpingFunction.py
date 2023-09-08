@@ -2,6 +2,10 @@ import datetime
 from datetime import datetime, timedelta
 import pprint
 
+
+
+
+
 base_id = 0
 
 def gen_id():
@@ -53,5 +57,28 @@ def genNext12Days():
     return return_items(res, "next12Days")
         
         
+
+
+
+def EmailNotification(email_receiver, subject, body):
+    
+    from email.message import EmailMessage
+    import ssl
+    import smtplib
+    
+    email_sender = "owen0867950578@gmail.com"
+    email_password = "sxvdwivteicovsxu"
+    
+    em = EmailMessage()
+    em["From"] = email_sender
+    em["To"] = email_receiver
+    em["Subject"] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_sender, email_password)
+        smtp.sendmail(email_sender, email_receiver, em.as_string())
 
 

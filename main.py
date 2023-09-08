@@ -63,3 +63,7 @@ async def apply_button(user_id: int, work_id: int):
     
     pass
 
+
+@app.get("/works/manageUserInWork/{work_id}")
+async def manage_user_in_work(work_id: int):
+    return manageUserInWork(work_id)

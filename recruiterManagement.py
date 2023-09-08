@@ -9,10 +9,6 @@ connection_string = "mongodb+srv://radnha:radnha2435@softenproject-database.ochw
 
 
 
-# date and time now
-today = datetime.now()
-x = str(today).split(' ') 
-dayName = today.strftime('%A')
 
 client = pymongo.MongoClient(connection_string)
 RecruitersCollection = client["NineTest"]["Recruiters"]
@@ -26,7 +22,8 @@ def insertPseudoRecruiter(recruiter):
     
 
     
-    
+#can recruiters add type_of_work?
+
 
 
 
