@@ -155,4 +155,37 @@ def manageUserInWork(work_id):
         return {status: list_of_worker}
 
 
-print(manageUserInWork(3))
+def getUserDetail(user_id):
+    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="User not found")
+    return uinfo
+
+
+def getReviewByStars(user_id, point):
+    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="User not found")
+    if str(point) not in uinfo["feedback"]:
+        raise HTTPException(status_code=400, detail="Review not found")
+    review = uinfo["feedback"][str(point)]
+    ans = list(ReviewsCollection.find({"review_id": {"$in": review}}, {"_id": 0}))
+    return ans
+
+
+def getListOfWorker(work_id):
+    winfo = WorksCollection.find_one({"work_id": work_id}, {"_id": 0})
+    if not winfo:
+        raise HTTPException(status_code=400, detail="Work not found")
+    worker = winfo["list_of_worker"]
+    return worker
+
+
+def byebyeUserCredit(user_id):
+    penalty = 500
+    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="User not found")
+    UsersCollection.update_one({"user_id": user_id},
+                               {"$set": {"credit": uinfo["credit"] - penalty}})
+    return {"detail": "User has been penalized"}

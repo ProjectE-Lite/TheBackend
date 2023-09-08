@@ -78,3 +78,23 @@ async def get_work_details_by_work_id(work_id: int, user_id: int):
 @app.get("/users/noti/{user_id}")
 async def get_user_notification(user_id: int):
     return getUserNotification(user_id)
+
+
+@app.get("/recruiters/userinfo/{user_id}")
+async def get_user_detail(user_id: int):
+    return getUserDetail(user_id)
+
+
+@app.get("/recruiters/userreview/{user_id}/{point}")
+async def get_review_by_stars(user_id: int, point: int):
+    return getReviewByStars(user_id, point)
+
+
+@app.get("/recruiters/worker/{work_id}")
+async def get_list_of_worker(work_id: int):
+    return getListOfWorker(work_id)
+
+
+@app.post("/recruiters/absent/{user_id}")
+async def byebye_user_credit(user_id: int):
+    return byebyeUserCredit(user_id)
