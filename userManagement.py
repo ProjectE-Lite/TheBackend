@@ -1,21 +1,10 @@
-import pymongo
+from database import *
 from bson.objectid import ObjectId
 import pprint
 from helpingFunction import *
 
 
-
-connection_string = "mongodb+srv://radnha:radnha2435@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority"
-
-client = pymongo.MongoClient(connection_string)
-
-UsersCollection = client["NineTest"]["Users"]
-
 printer = pprint.PrettyPrinter()
-
-
-
-
 
 
 def insertPseudoUser(user):
@@ -26,7 +15,6 @@ def insertPseudoUser(user):
 
 def addWorkToListOfWork(work_id, user_id):
     UsersCollection.update_one({"user_id": user_id}, {"$addToSet": {"list_of_work": work_id}})
-
 
 
 def matchingFieldOfInterested(type_of_work):

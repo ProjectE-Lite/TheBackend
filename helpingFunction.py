@@ -3,9 +3,6 @@ from datetime import datetime, timedelta
 import pprint
 
 
-
-
-
 base_id = 0
 
 def gen_id():
@@ -22,12 +19,12 @@ def return_items(item, name_header):
     return {name_header: item}
 
 
-
 def getNowDate():
     today = datetime.now()
     x = str(today).split(' ') 
     date_of_today = x[0].split('-')
     return date_of_today
+
 
 def getNowTime():
     today = datetime.now()
@@ -35,10 +32,12 @@ def getNowTime():
     date_of_today = x[1].split('-')
     return date_of_today
 
+
 def getNowDayName():
     today = datetime.now()
     day_name = today.strftime('%A')
     return day_name
+
 
 def genNext12Days():
     date_of_today = getNowDate()
@@ -56,9 +55,6 @@ def genNext12Days():
     res = res[1:]
     return return_items(res, "next12Days")
         
-        
-
-
 
 def EmailNotification(email_receiver, subject, body):
     
@@ -80,5 +76,3 @@ def EmailNotification(email_receiver, subject, body):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
         smtp.login(email_sender, email_password)
         smtp.sendmail(email_sender, email_receiver, em.as_string())
-
-

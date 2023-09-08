@@ -1,18 +1,8 @@
-import pymongo
+from database import *
 from bson.objectid import ObjectId
 import pprint
 from datetime import datetime
-from id_generator import *
 from helpingFunction import *
-
-connection_string = "mongodb+srv://radnha:radnha2435@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority"
-
-
-
-
-client = pymongo.MongoClient(connection_string)
-RecruitersCollection = client["NineTest"]["Recruiters"]
-
 
 
 def insertPseudoRecruiter(recruiter):

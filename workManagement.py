@@ -1,21 +1,12 @@
-import pymongo
+from database import *
+from fastapi import HTTPException
 from bson.objectid import ObjectId
 import pprint
-from id_generator import *
 from helpingFunction import *
 from userManagement import *
 
 
-
 printer = pprint.PrettyPrinter()
-
-connection_string = "mongodb+srv://radnha:radnha2435@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority"
-
-client = pymongo.MongoClient(connection_string)
-
-WorksCollection = client["NineTest"]["Works"]
-RecruitersCollection = client["NineTest"]["Recruiters"]
-UserStatusInWorkCollection = client["NineTest"]["UserStatusInWork"]
 
 
 def job_cost_calculator(number_requirement, hourly_income, start_time, end_time):
@@ -38,6 +29,7 @@ def return_list_items(cursor, name_header):
 def return_items(item, name_header):
     item["_id"] = str(item["_id"])
     return {name_header: item}
+
 
 def insertPseudoWork(work, recruiter_id):
     work_id = gen_id()
@@ -65,16 +57,47 @@ def getWorkByWorkDate(work_date):
     return return_list_items(work_list, "work_list")
 
 
-
 def getWorkByWorkID(work_id):
     item = WorksCollection.find_one({"work_id": work_id})
     return return_items(item, "work")
 
 
+def getAllWorkInUser(uid: int):
+    uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="User not found")
+    work = uinfo["list_of_work"]
+    if not work:
+        raise HTTPException(status_code=400, detail="No jobs")
+    ans = list(WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0}))
+    return ans
+
+
+def getWorkDetailsByWorkId(wid: int, uid: int):
+    winfo = WorksCollection.find_one({"work_id": wid}, {"_id": 0})
+    if not winfo:
+        raise HTTPException(status_code=400, detail="Work not found")
+    if str(uid) not in winfo["user_status"]:
+        raise HTTPException(status_code=400, detail="User not found")
+    sid = winfo["user_status"][str(uid)]
+    ans = UserStatusInWorkCollection.find_one({"user_status_id": sid}, {"_id": 0})
+    return {"work_detail": winfo, "status": ans["user_status"]}
+
+
+def getUserNotification(uid: int):
+    uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="User not found")
+    noti = uinfo["notification"]
+    if not noti:
+        raise HTTPException(status_code=400, detail="No notifications")
+    ans = list(UsersNotificationCollection.find({"user_noti_id": {"$in": noti}}, {"_id": 0}))
+    return ans
+
+
 def addUserToListOfCandidate(work_id, user_id):
     WorksCollection.update_one({"work_id": work_id}, {"$addToSet": {"list_of_candidate": user_id}})
     
-
 
 def updateUserStatus(user_status_id, user_status, interview_appointment, work_appointment):
     all_updates = {
@@ -84,7 +107,6 @@ def updateUserStatus(user_status_id, user_status, interview_appointment, work_ap
     }
     UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
     
-
 
 def initUserStatus(work_id, user_id):
     user_status_id = gen_id()
@@ -103,10 +125,6 @@ def initUserStatus(work_id, user_id):
     WorksCollection.update_one({"work_id": work_id}, target_dict)
    
 
-
-
-
-
 def isEndRegisteration(work_id):
     end_registeration = WorksCollection.find_one({"work_id": work_id})["end_registeration"].split('-')
     
@@ -118,12 +136,6 @@ def isEndRegisteration(work_id):
         return True
     else:
         return False
-
-
-
-    
-    
-
 
 
 def manageUserInWork(work_id):
@@ -142,5 +154,5 @@ def manageUserInWork(work_id):
         list_of_worker = work_cursor["list_of_worker"]
         return {status: list_of_worker}
 
-    
+
 print(manageUserInWork(3))

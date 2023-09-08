@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from database import *
 from model import *
 from recruiterManagement import *
 from userManagement import *
@@ -9,14 +10,11 @@ from helpingFunction import *
 app = FastAPI()
 
 
-
 @app.get("/gen12datenext")
 async def gen12datenext():
     return genNext12Days()
     
     
-
-
 @app.get("/test/{test_id}/collections/{kuy_id}")
 async def testo(test_id: str, kuy_id: str):
     return {"kuy" : test_id,
@@ -42,7 +40,6 @@ async def insert_pseudo_work(work: Works, recruiter_id: int):
     return insertPseudoWork(vars(work), recruiter_id)
     
 
-
 @app.get("/works/{work_date}")
 async def get_work_by_work_date(work_date: str):
     return getWorkByWorkDate(work_date)
@@ -51,7 +48,6 @@ async def get_work_by_work_date(work_date: str):
 @app.get("/users/get_work_details/{work_id}")
 async def get_work_details_by_work_id(work_id: int):
     return getWorkByWorkID(work_id)
-
 
 
 @app.post("/users/applyButt/{user_id}/{work_id}")
@@ -67,3 +63,18 @@ async def apply_button(user_id: int, work_id: int):
 @app.get("/works/manageUserInWork/{work_id}")
 async def manage_user_in_work(work_id: int):
     return manageUserInWork(work_id)
+
+
+@app.get("/users/allwork/{user_id}")
+async def get_all_work_in_user(user_id: int):
+    return getAllWorkInUser(user_id)
+
+
+@app.get("/users/workinfo/{work_id}/{user_id}")
+async def get_work_details_by_work_id(work_id: int, user_id: int):
+    return getWorkDetailsByWorkId(work_id, user_id)
+
+
+@app.get("/users/noti/{user_id}")
+async def get_user_notification(user_id: int):
+    return getUserNotification(user_id)
