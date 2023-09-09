@@ -99,11 +99,23 @@ def addUserToListOfCandidate(work_id, user_id):
     WorksCollection.update_one({"work_id": work_id}, {"$addToSet": {"list_of_candidate": user_id}})
     
 
-def updateUserStatus(user_status_id, user_status, interview_appointment, work_appointment):
+def updateUserStatus(user_status_id, user_status):
     all_updates = {
-        "$set": {"user_status": user_status,
-                 "interview_appointment": interview_appointment,
-                 "work_appointment": work_appointment}
+        "$set": {"user_status": user_status}
+    }
+    UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
+
+
+def updateUserStatusInterview(user_status_id, interview_appointment):
+    all_updates = {
+        "$set": {"interview_appointment": interview_appointment}
+    }
+    UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
+
+
+def updateUserStatusWorkApp(user_status_id, work_appointment):
+    all_updates = {
+        "$set": {"work_appointment": work_appointment}
     }
     UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
     
@@ -189,3 +201,33 @@ def byebyeUserCredit(user_id):
     UsersCollection.update_one({"user_id": user_id},
                                {"$set": {"credit": uinfo["credit"] - penalty}})
     return {"detail": "User has been penalized"}
+
+
+def AppointmentButton(user_id, work_id, date, time):
+    recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
+    recruiter_name = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["name"]
+    text = "You have an appointment of interview in " + date + time + " from " + recruiter_name
+    user_status_id = WorksCollection.find_one({"work_id": work_id})["user_status"][str(user_id)]
+    updateUserStatusInterview(user_status_id, date+time)
+    email = "suphanat.wi@ku.th"
+    #email = UsersCollection.find_one({"user_id": user_id})["email"]
+    EmailNotification(email, "Appointment", text)
+    #notiDatabase
+
+
+def AcceptButton(user_id, work_id):
+    all_updates = {
+        "$inc": {"number_requirement": -1},
+        "$addToSet": {"list_of_worker": user_id}
+    }
+    WorksCollection.update_one({"work_id": work_id}, all_updates)
+
+    recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
+    recruiter_name = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["name"]
+    work_name = WorksCollection.find_one({"work_id": work_id})["name"]
+    text = f"{recruiter_name} accepted you to join {work_name}"    
+    user_status_id = WorksCollection.find_one({"work_id": work_id})["user_status"][str(user_id)]
+    updateUserStatus(user_status_id, "working")
+    updateUserStatusWorkApp(user_status_id, "site work details")
+    email = "suphanat.wi@ku.th"
+    EmailNotification(email, "Accepted", text)

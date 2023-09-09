@@ -98,3 +98,8 @@ async def get_list_of_worker(work_id: int):
 @app.post("/recruiters/absent/{user_id}")
 async def byebye_user_credit(user_id: int):
     return byebyeUserCredit(user_id)
+
+
+@app.post("/users/appointmentButton/{user_id}/{work_id}/{date}/{time}")
+async def appointment_button(user_id: int, work_id: int, date: str, time: str):
+    AppointmentButton(user_id, work_id, date, time)
