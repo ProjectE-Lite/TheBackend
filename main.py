@@ -109,3 +109,4 @@ async def appointment_button(user_id: int, work_id: int, date: str, time: str):
 async def update_work(work_id: int , work: UpdateWorks):
     update_detail_work(work_id,work.dict(exclude_unset = True))
     return "success, you have updated work"
+
