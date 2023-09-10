@@ -231,3 +231,18 @@ def AcceptButton(user_id, work_id):
     updateUserStatusWorkApp(user_status_id, "site work details")
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
+
+
+def update_detail_work(work_id,work):
+    work_data = WorksCollection.find_one({"work_id": work_id})
+    recruiter_id = work_data["recruiter_id"]
+    # ถ้าเปลี่ยนพวกเวลา จำนวนคนรับ ราคา ก็ต้องเปลี่ยนpotด้วย
+    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$inc": {"credit": work_data["pot"]}})
+    recruiter_credit = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["credit"]    
+    job_cost = job_cost_calculator(work["number_requirement"], work["hourly_income"], work["start_time"], work["end_time"])
+    if recruiter_credit < job_cost:
+        return "can't edit, your credit is too low, need topup"
+    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$inc": {"credit": -job_cost}})
+    work["pot"] =  job_cost
+    WorksCollection.update_one({'work_id':work_id},{'$set':work})
+    return 0
