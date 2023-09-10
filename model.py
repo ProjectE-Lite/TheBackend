@@ -6,6 +6,7 @@ class Recruiters(BaseModel):
     name: str
     address: str
     credit: int
+    email: str
     list_of_work: list
     have_worked_with: dict
     notification: list

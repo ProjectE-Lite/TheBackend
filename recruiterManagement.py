@@ -16,7 +16,14 @@ def insertPseudoRecruiter(recruiter):
 
 
 
+def addHaveWorkedWith(recruiter_id, work_type, user_id):
+    
+    all_updates = {
+        "$set" : {f"have_worked_with.{work_type}.{user_id}": True}
+    }
+
+    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, all_updates)
 
 
 
-
+addHaveWorkedWith(2, "Mananger", 5)
