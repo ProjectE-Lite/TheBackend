@@ -103,3 +103,9 @@ async def byebye_user_credit(user_id: int):
 @app.post("/users/appointmentButton/{user_id}/{work_id}/{date}/{time}")
 async def appointment_button(user_id: int, work_id: int, date: str, time: str):
     AppointmentButton(user_id, work_id, date, time)
+
+
+@app.patch("/updateworks/{work_id}")
+async def update_work(work_id: int , work: UpdateWorks):
+    update_detail_work(work_id,work.dict(exclude_unset = True))
+    return "success, you have updated work"

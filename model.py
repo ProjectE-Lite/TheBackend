@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class Recruiters(BaseModel):
@@ -50,3 +51,14 @@ class Works(BaseModel):
     end_time: str
     user_status: dict
     
+class UpdateWorks(BaseModel):
+    name: Optional[str] 
+    type_of_work: Optional[str]
+    number_requirement: Optional[int]
+    work_description: Optional[str]
+    hourly_income: Optional[int]
+    end_registeration: Optional[str]
+    work_date: Optional[str]
+    start_time: Optional[str]
+    end_time: Optional[str]
+    user_status: Optional[dict]
