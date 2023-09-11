@@ -116,11 +116,7 @@ async def payment_method(work_id: int, user_id: int, review_body: Reviews):
     addHaveWorkedWith(work_id, user_id)
     manageReview(user_id, work_id, vars(review_body))
     manageMoneyExchange(work_id, user_id)
-    #updateUserStatusDone
-    #vars(review_body)
-    #notiPaymentToUser(work_id, user_id)
-    pass
-
+   
 
 
 
