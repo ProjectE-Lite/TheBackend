@@ -13,14 +13,8 @@ app = FastAPI()
 @app.get("/gen12datenext")
 async def gen12datenext():
     return genNext12Days()
-    
-    
-@app.get("/test/{test_id}/collections/{kuy_id}")
-async def testo(test_id: str, kuy_id: str):
-    return {"kuy" : test_id,
-            "mha" : kuy_id
-            }
 
+    
 
 @app.post("/recruiters/insert_recruiter")
 async def insert_pseudo_recruiter(recruiter: Recruiters):
@@ -107,6 +101,27 @@ async def appointment_button(user_id: int, work_id: int, date: str, time: str):
 
 @app.patch("/updateworks/{work_id}")
 async def update_work(work_id: int , work: UpdateWorks):
-    update_detail_work(work_id,work.dict(exclude_unset = True))
+    updateDetailWork(work_id,work.dict(exclude_unset = True))
     return "success, you have updated work"
+
+
+@app.patch("/users/applyButton/{user_id}/{work_id}")
+async def accept_button(user_id: int, work_id: int):
+    AcceptButton(user_id, work_id)
+
+
+#get review body
+@app.post("/payment/{work_id}/{user_id}")
+async def payment_method(work_id: int, user_id: int, review_body: Reviews):
+    addHaveWorkedWith(work_id, user_id)
+    manageReview(user_id, work_id, vars(review_body))
+    manageMoneyExchange(work_id, user_id)
+    #vars(review_body)
+    #notiPaymentToUser(work_id, user_id)
+    pass
+
+
+
+
+
 
