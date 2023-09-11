@@ -14,7 +14,6 @@ app = FastAPI()
 async def gen12datenext():
     return genNext12Days()
 
-    
 
 @app.post("/recruiters/insert_recruiter")
 async def insert_pseudo_recruiter(recruiter: Recruiters):
@@ -110,14 +109,8 @@ async def accept_button(user_id: int, work_id: int):
     AcceptButton(user_id, work_id)
 
 
-
 @app.patch("/payment/{work_id}/{user_id}")
 async def payment_method(work_id: int, user_id: int, review_body: Reviews):
     addHaveWorkedWith(work_id, user_id)
     manageReview(user_id, work_id, vars(review_body))
     manageMoneyExchange(work_id, user_id)
-   
-
-
-
-

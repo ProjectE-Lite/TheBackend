@@ -233,7 +233,7 @@ def AcceptButton(user_id, work_id):
     EmailNotification(email, "Accepted", text)
 
 
-def update_detail_work(work_id,work):
+def updateDetailWork(work_id,work):
     work_data = WorksCollection.find_one({"work_id": work_id})
     recruiter_id = work_data["recruiter_id"]
     # ถ้าเปลี่ยนพวกเวลา จำนวนคนรับ ราคา ก็ต้องเปลี่ยนpotด้วย
