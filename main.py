@@ -39,7 +39,7 @@ async def get_work_by_work_date(work_date: str):
    
 
 @app.get("/users/get_work_details/{work_id}")
-async def get_work_details_by_work_id(work_id: int):
+async def get_work_by_work_id(work_id: int):
     return getWorkByWorkID(work_id)
 
 
