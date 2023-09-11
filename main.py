@@ -13,13 +13,6 @@ app = FastAPI()
 @app.get("/gen12datenext")
 async def gen12datenext():
     return genNext12Days()
-    
-    
-@app.get("/test/{test_id}/collections/{kuy_id}")
-async def testo(test_id: str, kuy_id: str):
-    return {"kuy" : test_id,
-            "mha" : kuy_id
-            }
 
 
 @app.post("/recruiters/insert_recruiter")
@@ -109,4 +102,3 @@ async def appointment_button(user_id: int, work_id: int, date: str, time: str):
 async def update_work(work_id: int , work: UpdateWorks):
     update_detail_work(work_id,work.dict(exclude_unset = True))
     return "success, you have updated work"
-
