@@ -11,9 +11,7 @@ def insertPseudoRecruiter(recruiter):
     RecruitersCollection.insert_one(recruiter)
     
 
-    
 #can recruiters add type_of_work?
-
 
 
 def addHaveWorkedWith(recruiter_id, work_type, user_id):
@@ -23,7 +21,3 @@ def addHaveWorkedWith(recruiter_id, work_type, user_id):
     }
 
     RecruitersCollection.update_one({"recruiter_id": recruiter_id}, all_updates)
-
-
-
-addHaveWorkedWith(2, "Mananger", 5)
