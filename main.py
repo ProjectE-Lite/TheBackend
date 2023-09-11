@@ -16,19 +16,19 @@ async def gen12datenext():
 
 
 @app.post("/recruiters")
-async def insert_pseudo_recruiter(recruiter: Recruiters):
+async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
     return "success you have inserted recruiter"
 
 
 @app.post("/users")
-async def insert_pseudo_user(user: Users):
+async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
     return "success you have inserted user"
 
 
 @app.post("/works/{recruiter_id}")
-async def insert_pseudo_work(work: Works, recruiter_id: int):
+async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
     # notiFieldOfInteresterd()
     return insertPseudoWork(vars(work), recruiter_id)
 
