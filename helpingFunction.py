@@ -11,6 +11,7 @@ def gen_id():
     base_id += 1
     return base_id
 
+
 def reset_id():
     global base_id
     base_id = 0
@@ -79,7 +80,6 @@ def EmailNotification(email_receiver, subject, body):
         smtp.sendmail(email_sender, email_receiver, em.as_string())
 
 
-
 def job_cost_calculator(number_requirement, hourly_income, start_time, end_time):
     start_time = start_time.split(":")
     end_time = end_time.split(":")
@@ -87,7 +87,8 @@ def job_cost_calculator(number_requirement, hourly_income, start_time, end_time)
     end_f = float(end_time[0] + "." + end_time[1])
     hour_diff = end_f - start_f
     return number_requirement * hourly_income * hour_diff
-    
+
+
 def cost_per_person(hourly_income, start_time, end_time):
     start_time = start_time.split(":")
     end_time = end_time.split(":")
@@ -96,7 +97,6 @@ def cost_per_person(hourly_income, start_time, end_time):
     hour_diff = end_f - start_f
     return hourly_income * hour_diff
     
-
 
 def insertMoneyExchange(recruiter_id, user_id, cost):
     datenow = datetime.now()
@@ -110,7 +110,6 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
     MoneyExchangeCollection.insert_one(money_exchange_body)
     RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$addToSet": {"list_of_money_exchange": money_exchange_id}})
     UsersCollection.update_one({"user_id": user_id}, {"$addToSet": {"list_of_money_exchange": money_exchange_id}})
-
 
 
 def manageMoneyExchange(work_id, user_id):

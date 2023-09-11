@@ -40,7 +40,7 @@ async def get_work_by_work_date(work_date: str):
    
 
 @app.get("/users/get_work_details/{work_id}")
-async def get_work_details_by_work_id(work_id: int):
+async def get_work_by_work_id(work_id: int):
     return getWorkByWorkID(work_id)
 
 
@@ -110,14 +110,13 @@ async def accept_button(user_id: int, work_id: int):
     AcceptButton(user_id, work_id)
 
 
-#get review body
+
 @app.patch("/payment/{work_id}/{user_id}")
 async def payment_method(work_id: int, user_id: int, review_body: Reviews):
     addHaveWorkedWith(work_id, user_id)
     manageReview(user_id, work_id, vars(review_body))
     manageMoneyExchange(work_id, user_id)
    
-
 
 
 
