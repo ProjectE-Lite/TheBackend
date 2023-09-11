@@ -63,3 +63,9 @@ class UpdateWorks(BaseModel):
     start_time: Optional[str]
     end_time: Optional[str]
     user_status: Optional[dict]
+
+
+class Reviews(BaseModel):
+    recruiter_id: int
+    score: int
+    text: str
