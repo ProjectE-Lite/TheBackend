@@ -124,19 +124,31 @@ def manageMoneyExchange(work_id, user_id):
     # deal with MoneyExchange Database
     recruiter_id = workdoc["recruiter_id"]
     insertMoneyExchange(recruiter_id, user_id, cost)
+
+    recruiterdoc = RecruitersCollection.find_one({"recruiter_id": recruiter_id})
+    userdoc = UsersCollection.find_one({"user_id": user_id})
+    
+    recruiter_name = recruiterdoc["name"]
+    work_name = workdoc["name"]
+
+    subject = "brooo you have got a moneyyyy"
+    body = f"{recruiter_name} has paid you {cost} for {work_name}"
+    EmailNotification(userdoc["email"], subject, body)
     
 
-def manageReview(user_id, work_id, review_body, score):
+def manageReview(user_id, work_id, review_body):
+    
     
     recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
+    score = review_body["score"]
+    text = review_body["text"]
     
-
     review_id = gen_id()
     
     review_doc = {"review_id": review_id,
                   "recruiter_id": recruiter_id,
                   "score": score,
-                  "text": review_body}
+                  "text": text}
     
     ReviewsCollection.insert_one(review_doc)
 
@@ -145,5 +157,3 @@ def manageReview(user_id, work_id, review_body, score):
     }
     UsersCollection.update_one({"user_id":user_id}, all_updates)
 
-
-#NOTI
