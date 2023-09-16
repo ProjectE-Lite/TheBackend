@@ -9,6 +9,14 @@ def insertPseudoRecruiter(recruiter):
     recruiter_id = gen_id()
     recruiter["recruiter_id"] = recruiter_id
     RecruitersCollection.insert_one(recruiter)
+
+
+def check_recruiter(uname: str, passwd: str):
+    rinfo = RecruitersCollection.find_one({"username": uname, "password": passwd}, {"_id": 0})
+    if not rinfo:
+        return 0
+    else:
+        return 1
     
 
 #can recruiters add type_of_work?
