@@ -11,6 +11,14 @@ def insertPseudoUser(user):
     user_id = gen_id()
     user["user_id"] = user_id
     UsersCollection.insert_one(user)
+
+
+def check_user(uname: str, passwd: str):
+    uinfo = UsersCollection.find_one({"username": uname, "password": passwd}, {"_id": 0})
+    if not uinfo:
+        return 0
+    else:
+        return 1
     
 
 def addWorkToListOfWork(work_id, user_id):

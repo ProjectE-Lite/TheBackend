@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from database import *
 from model import *
@@ -6,6 +6,8 @@ from recruiterManagement import *
 from userManagement import *
 from workManagement import *
 from helpingFunction import *
+from auth.jwt_handler import *
+from auth.jwt_bearer import *
 
 app = FastAPI()
 
@@ -18,19 +20,35 @@ async def gen12datenext():
 @app.post("/recruiters")
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
-    return "success you have inserted recruiter"
+    return signJWT(recruiter.username)
 
 
 @app.post("/users")
 async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
-    return "success you have inserted user"
+    return signJWT(user.username)
 
 
 @app.post("/works/{recruiter_id}")
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
     # notiFieldOfInteresterd()
     return insertPseudoWork(vars(work), recruiter_id)
+
+
+@app.post("/recruiters/login")
+async def recruiter_login(recruiter: Login):
+    if check_recruiter(recruiter.username, recruiter.password):
+        return signJWT(recruiter.username)
+    else:
+        return {"error": "Invalid login details"}
+
+
+@app.post("/users/login")
+async def user_login(user: Login):
+    if check_user(user.username, user.password):
+        return signJWT(user.username)
+    else:
+        return {"error": "Invalid login details"}
 
 
 @app.get("/works/{work_id}")

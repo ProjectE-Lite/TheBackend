@@ -4,6 +4,8 @@ from typing import Optional
 
 class Recruiters(BaseModel):
     recruiter_id: int
+    username: str
+    password: str
     name: str
     address: str
     credit: int
@@ -15,6 +17,8 @@ class Recruiters(BaseModel):
 
 class Users(BaseModel):
     user_id: int
+    username: str
+    password: str
     first_name: str
     last_name: str
     nick_name: str
@@ -72,6 +76,8 @@ class Reviews(BaseModel):
 
 
 class RecruitersRequest(BaseModel):
+    username: str
+    password: str
     name: str
     address: str
     credit: int
@@ -82,6 +88,8 @@ class RecruitersRequest(BaseModel):
     list_of_money_exchange: list
 
 class UsersRequest(BaseModel):
+    username: str
+    password: str
     first_name: str
     last_name: str
     nick_name: str
@@ -116,3 +124,7 @@ class WorksRequest(BaseModel):
     start_time: str
     end_time: str
     user_status: dict
+
+class Login(BaseModel):
+    username: str
+    password: str
