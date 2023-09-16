@@ -11,6 +11,8 @@ from auth.jwt_bearer import *
 
 app = FastAPI()
 
+# if any function need authentication, simply add "dependencies=[Depends(jwtBearer())]" in endpoint
+# Example: @app.get("/works/{work_id}") --> @app.get("/works/{work_id}", dependencies=[Depends(jwtBearer())])
 
 @app.get("/gen12datenext")
 async def gen12datenext():
