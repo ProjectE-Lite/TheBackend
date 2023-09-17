@@ -14,7 +14,7 @@ app = FastAPI()
 # if any function need authentication, simply add "dependencies=[Depends(jwtBearer())]" in endpoint
 # Example: @app.get("/works/{work_id}") --> @app.get("/works/{work_id}", dependencies=[Depends(jwtBearer())])
 
-@app.get("/gen12datenext")
+@app.get("/12datenext")
 async def gen12datenext():
     return genNext12Days()
 
@@ -31,7 +31,7 @@ async def insert_pseudo_user(user: UsersRequest):
     return signJWT(user.username)
 
 
-@app.post("/works/{recruiter_id}")
+@app.post("/recruiters/{recruiter_id}/works")
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
     # notiFieldOfInteresterd()
     return insertPseudoWork(vars(work), recruiter_id)
