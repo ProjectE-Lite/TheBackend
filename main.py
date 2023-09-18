@@ -58,6 +58,16 @@ async def get_work_by_work_id(work_id: int):
     return getWorkByWorkID(work_id)
 
 
+
+@app.patch("/users/applyButt/{user_id}/{work_id}")
+async def apply_button(user_id: int, work_id: int):
+    addUserToListOfCandidate(work_id, user_id)
+    addWorkToListOfWork(work_id, user_id)
+    initUserStatus(work_id, user_id)
+    # notiUserAppToRecruiter()
+    
+    pass
+
 @app.get("/work_date/{work_date}")
 async def get_work_by_work_date(work_date: str):
     return getWorkByWorkDate(work_date)
@@ -98,6 +108,16 @@ async def get_list_of_worker(work_id: int):
     return getListOfWorker(work_id)
 
 
+
+@app.patch("/recruiters/absent/{user_id}")
+async def byebye_user_credit(user_id: int):
+    return byebyeUserCredit(user_id)
+
+
+@app.patch("/users/appointmentButton/{user_id}/{work_id}/{date}/{time}")
+async def appointment_button(user_id: int, work_id: int, date: str, time: str):
+    AppointmentButton(user_id, work_id, date, time)
+
 @app.patch("/works/{work_id}")
 async def update_work(work_id: int , work: UpdateWorks):
     updateDetailWork(work_id,work.dict(exclude_unset = True))
@@ -117,6 +137,7 @@ async def apply_button(user_id: int, work_id: int):
 @app.patch("/users/{user_id}/accept/{work_id}")
 async def accept_button(user_id: int, work_id: int):
     AcceptButton(user_id, work_id)
+
 
 
 @app.patch("/users/{user_id}/appoint/{work_id}/{date}/{time}")
