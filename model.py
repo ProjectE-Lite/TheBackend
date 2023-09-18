@@ -125,6 +125,10 @@ class WorksRequest(BaseModel):
     end_time: str
     user_status: dict
 
+class ReviewsRequest(BaseModel):
+    score: int
+    text: str
+
 class Login(BaseModel):
     username: str
     password: str

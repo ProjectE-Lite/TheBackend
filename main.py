@@ -125,7 +125,7 @@ async def appointment_button(user_id: int, work_id: int, date: str, time: str):
 
 
 @app.patch("/users/{user_id}/payment/{work_id}")
-async def payment_method(work_id: int, user_id: int, review_body: Reviews):
+async def payment_method(work_id: int, user_id: int, review_body: ReviewsRequest):
     addHaveWorkedWith(work_id, user_id)
     manageReview(user_id, work_id, vars(review_body))
     manageMoneyExchange(work_id, user_id)
