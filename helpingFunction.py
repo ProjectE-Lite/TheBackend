@@ -5,6 +5,8 @@ from database import *
 
 
 base_id = 0
+user_exclude = ["point","credit","resume","list_of_work","list_of_money_exchange","field_of_interested","notification","feedback"]
+recruiter_exclude = ["credit","list_of_work","have_worked_with","list_of_money_exchange","notification"]
 
 def gen_id():
     global base_id

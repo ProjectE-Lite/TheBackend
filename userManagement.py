@@ -18,7 +18,7 @@ def check_user(uname: str, passwd: str):
     if not uinfo:
         return 0
     else:
-        return 1
+        return uinfo
     
 
 def addWorkToListOfWork(work_id, user_id):

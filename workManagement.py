@@ -49,7 +49,7 @@ def insertPseudoWork(work, recruiter_id):
     RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$addToSet": {"list_of_work": work_id}})
     matchingFieldOfInterested(work["type_of_work"])
     
-    return "you have created work"
+    return return_items(work, "work")
 
 
 def getWorkByWorkDate(work_date):

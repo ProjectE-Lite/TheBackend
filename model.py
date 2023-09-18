@@ -51,7 +51,6 @@ class Works(BaseModel):
     list_of_worker: list
     end_registeration: str
     work_date: str
-    work_day: str
     start_time: str
     end_time: str
     user_status: dict
@@ -120,7 +119,6 @@ class WorksRequest(BaseModel):
     list_of_worker: list
     end_registeration: str
     work_date: str
-    work_day: str
     start_time: str
     end_time: str
     user_status: dict

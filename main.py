@@ -22,13 +22,15 @@ async def gen12datenext():
 @app.post("/recruiters", tags=["Recruiters"])
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
-    return signJWT(recruiter.username)
+    rinfo = check_recruiter(recruiter.username, recruiter.password)
+    return {"access token": signJWT(recruiter.username), "data": {k:v for k,v in rinfo.items() if k not in recruiter_exclude}}
 
 
 @app.post("/users", tags=["Users"])
 async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
-    return signJWT(user.username)
+    uinfo = check_user(user.username, user.password)
+    return {"access token": signJWT(user.username), "data": {k:v for k,v in uinfo.items() if k not in user_exclude}}
 
 
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
@@ -40,7 +42,8 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
 @app.post("/recruiters/login", tags=["Recruiters"])
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
-        return signJWT(recruiter.username)
+        rinfo = check_recruiter(recruiter.username, recruiter.password)
+        return {"access token": signJWT(recruiter.username), "data": {k:v for k,v in rinfo.items() if k not in recruiter_exclude}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -48,7 +51,8 @@ async def recruiter_login(recruiter: Login):
 @app.post("/users/login", tags=["Users"])
 async def user_login(user: Login):
     if check_user(user.username, user.password):
-        return signJWT(user.username)
+        uinfo = check_user(user.username, user.password)
+        return {"access token": signJWT(user.username), "data": {k:v for k,v in uinfo.items() if k not in user_exclude}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
