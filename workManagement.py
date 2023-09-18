@@ -81,7 +81,7 @@ def getWorkDetailsByWorkId(wid: int, uid: int):
         raise HTTPException(status_code=400, detail="User not found")
     sid = winfo["user_status"][str(uid)]
     ans = UserStatusInWorkCollection.find_one({"user_status_id": sid}, {"_id": 0})
-    return {"work_detail": winfo, "status": ans["user_status"]}
+    return {"status": ans["user_status"], "work_detail": winfo}
 
 
 def getUserNotification(uid: int):
@@ -174,7 +174,7 @@ def getUserDetail(user_id):
     return uinfo
 
 
-def getReviewByStars(user_id, point):
+def getReviewByPoints(user_id, point):
     uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
@@ -193,7 +193,7 @@ def getListOfWorker(work_id):
     return worker
 
 
-def byebyeUserCredit(user_id):
+def penalizedUserCredit(user_id):
     penalty = 500
     uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
     if not uinfo:
