@@ -255,7 +255,8 @@ def updateDetailWork(work_id,work):
     WorksCollection.update_one({'work_id':work_id},{'$set':work})
     return 0
 
-def get_candidate_of_work(uid: int):
+
+def getCandidateOfWork(uid: int):
     listofworker=WorksCollection.find_one({"work_id":uid})
     values = listofworker["list_of_candidate"]
     list=[]

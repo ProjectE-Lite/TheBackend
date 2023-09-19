@@ -32,7 +32,8 @@ def matchingFieldOfInterested(type_of_work):
         print("worktype matching with user: ",item["user_id"])
         #notiToUser(item["user_id"])
 
-def get_user_list_of_money_exchange(uid: int):
+
+def getUserListOfMoneyExchange(uid: int):
     moneylist=MoneyExchangeCollection.find_one({"user_id":uid})
     values = moneylist["total_credit"]
     values = str(values)
@@ -41,6 +42,7 @@ def get_user_list_of_money_exchange(uid: int):
     list=[list_of_money]
     dict[values]=list
     return dict
+
 
 def withdrawUserCredit(uid: int,wid: int):
     moneylist=MoneyExchangeCollection.find_one({"user_id":uid})
@@ -74,4 +76,4 @@ def withdrawUserCredit(uid: int,wid: int):
                         }
                 }
     UsersCollection.update_one({"user_id":uid},txt_update)
-    return f"Tranfer to Bank {values}"
+    return {"details": f"Tranfer to Bank {values}"}
