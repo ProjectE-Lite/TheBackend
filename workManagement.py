@@ -53,27 +53,35 @@ def insertPseudoWork(work, recruiter_id):
 
 
 def getWorkByWorkDate(work_date):
+    ans = []
     work_list = WorksCollection.find({"work_date": work_date})
-    return return_list_items(work_list, "work_list")
+    for i in work_list:
+        ans.append(i["work_id"])
+    return {"work_list": ans}
 
 
 def getWorkByWorkID(work_id):
     item = WorksCollection.find_one({"work_id": work_id})
+    if not item:
+        raise HTTPException(status_code=400, detail="Work not found")
     return return_items(item, "work")
 
 
 def getAllWorkInUser(uid: int):
+    ans = []
     uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     work = uinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    ans = list(WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0}))
-    return ans
+    work_list = WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0})
+    for i in work_list:
+        ans.append(i["work_id"])
+    return {"work_list": ans}
 
 
-def getWorkDetailsByWorkId(wid: int, uid: int):
+def getWorkDetailsByWorkAndUserId(wid: int, uid: int):
     winfo = WorksCollection.find_one({"work_id": wid}, {"_id": 0})
     if not winfo:
         raise HTTPException(status_code=400, detail="Work not found")

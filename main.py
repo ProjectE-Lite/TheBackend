@@ -23,15 +23,14 @@ async def gen12datenext():
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
     rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {k:v for k,v in rinfo.items() if k not in recruiter_exclude}}
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["recruiter_id"]}}
 
 
 @app.post("/users", tags=["Users"])
 async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
     uinfo = check_user(user.username, user.password)
-    return {"access token": signJWT(user.username), "data": {k:v for k,v in uinfo.items() if k not in user_exclude}}
-
+    return {"access token": signJWT(user.username), "data": {"user_id": uinfo["user_id"]}}
 
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
@@ -43,7 +42,7 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
         rinfo = check_recruiter(recruiter.username, recruiter.password)
-        return {"access token": signJWT(recruiter.username), "data": {k:v for k,v in rinfo.items() if k not in recruiter_exclude}}
+        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["recruiter_id"]}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -52,7 +51,7 @@ async def recruiter_login(recruiter: Login):
 async def user_login(user: Login):
     if check_user(user.username, user.password):
         uinfo = check_user(user.username, user.password)
-        return {"access token": signJWT(user.username), "data": {k:v for k,v in uinfo.items() if k not in user_exclude}}
+        return {"access token": signJWT(user.username), "data": {"user_id": uinfo["user_id"]}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -67,7 +66,7 @@ async def get_work_by_work_date(work_date: str):
     return getWorkByWorkDate(work_date)
 
 
-@app.get("/works/{work_id}/manageWorker")
+@app.get("/works/{work_id}/member")
 async def manage_user_in_work(work_id: int):
     return manageUserInWork(work_id)
 
@@ -78,8 +77,8 @@ async def get_all_work_in_user(user_id: int):
 
 
 @app.get("/users/{user_id}/works/{work_id}")
-async def get_work_details_by_work_id(work_id: int, user_id: int):
-    return getWorkDetailsByWorkId(work_id, user_id)
+async def get_work_details_by_work_and_user_id(work_id: int, user_id: int):
+    return getWorkDetailsByWorkAndUserId(work_id, user_id)
 
 
 @app.get("/users/{user_id}/noti")
