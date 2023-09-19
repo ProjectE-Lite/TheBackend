@@ -47,7 +47,7 @@ class Works(BaseModel):
     work_description: str
     hourly_income: int
     pot: int
-    list_of_candidiate: list
+    list_of_candidate: list
     list_of_worker: list
     end_registeration: str
     work_date: str
@@ -115,7 +115,7 @@ class WorksRequest(BaseModel):
     work_description: str
     hourly_income: int
     pot: int
-    list_of_candidiate: list
+    list_of_candidate: list
     list_of_worker: list
     end_registeration: str
     work_date: str

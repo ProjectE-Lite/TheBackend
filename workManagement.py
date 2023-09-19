@@ -166,7 +166,7 @@ def getWorkStatusAndListOfUser(work_id):
     
     if isEnd != True and num_require != 0:
         status = "still_choosing"
-        list_of_candidate = work_cursor["list_of_candidiate"]
+        list_of_candidate = work_cursor["list_of_candidate"]
         return {status: list_of_candidate}
 
     else:
