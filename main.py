@@ -67,8 +67,8 @@ async def get_work_by_work_date(work_date: str):
 
 
 @app.get("/works/{work_id}/status")
-async def manage_user_in_work(work_id: int):
-    return manageUserInWork(work_id)
+async def get_work_status_and_list_of_user(work_id: int):
+    return getWorkStatusAndListOfUser(work_id)
 
 
 @app.get("/works/{work_id}/candidate")
@@ -79,6 +79,11 @@ def get_candidate_of_work(work_id: int):
 @app.get("/works/{work_id}/worker")
 async def get_list_of_worker(work_id: int):
     return getListOfWorker(work_id)
+
+
+@app.get("/users/{user_id}")
+async def get_user_detail(user_id: int):
+    return getUserDetail(user_id)
 
 
 @app.get("/users/{user_id}/works")
@@ -94,11 +99,6 @@ async def get_work_details_by_work_and_user_id(work_id: int, user_id: int):
 @app.get("/users/{user_id}/noti")
 async def get_user_notification(user_id: int):
     return getUserNotification(user_id)
-
-
-@app.get("/users/{user_id}")
-async def get_user_detail(user_id: int):
-    return getUserDetail(user_id)
 
 
 @app.get("/users/{user_id}/review_points/{point}")

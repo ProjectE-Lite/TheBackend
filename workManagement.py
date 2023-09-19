@@ -158,7 +158,7 @@ def isEndRegisteration(work_id):
         return False
 
 
-def manageUserInWork(work_id):
+def getWorkStatusAndListOfUser(work_id):
     isEnd = isEndRegisteration(work_id)
     work_cursor = WorksCollection.find_one({"work_id": work_id})
     num_require = work_cursor["number_requirement"]
@@ -257,11 +257,11 @@ def updateDetailWork(work_id,work):
 
 
 def getCandidateOfWork(uid: int):
-    listofworker=WorksCollection.find_one({"work_id":uid})
+    listofworker = WorksCollection.find_one({"work_id": uid})
     values = listofworker["list_of_candidate"]
     list=[]
     for i in values:
-        namesofid=UsersCollection.find_one({"user_id":i})
+        namesofid = UsersCollection.find_one({"user_id":i})
         first = namesofid["first_name"]
         last =  namesofid["last_name"]
         tmp=first + " " + last
