@@ -254,3 +254,15 @@ def updateDetailWork(work_id,work):
     work["pot"] =  job_cost
     WorksCollection.update_one({'work_id':work_id},{'$set':work})
     return 0
+
+def get_candidate_of_work(uid: int):
+    listofworker=WorksCollection.find_one({"work_id":uid})
+    values = listofworker["list_of_candidate"]
+    list=[]
+    for i in values:
+        namesofid=UsersCollection.find_one({"user_id":i})
+        first = namesofid["first_name"]
+        last =  namesofid["last_name"]
+        tmp=first + " " + last
+        list.append(tmp)
+    return list

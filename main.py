@@ -55,6 +55,9 @@ async def user_login(user: Login):
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
+@app.post("/{uid}/withdraw/{wid}")
+def withdrawUserCredit(uid: int,wid: int):
+    return withdrawUserCredit(uid,wid)
 
 @app.get("/works/{work_id}")
 async def get_work_by_work_id(work_id: int):
@@ -100,6 +103,13 @@ async def get_review_by_points(user_id: int, point: int):
 async def get_list_of_worker(work_id: int):
     return getListOfWorker(work_id)
 
+@app.get("/users/{uid}/money_exchange")
+def get_user_list_of_money_exchange(uid: int):
+    return get_user_list_of_money_exchange(uid)
+    
+@app.get("/recruiters/{uid}/candidate")
+def get_candidate_of_work(uid: int):
+    return get_candidate_of_work(uid)
 
 @app.patch("/works/{work_id}")
 async def update_work(work_id: int , work: UpdateWorks):
