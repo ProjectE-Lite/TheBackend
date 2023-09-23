@@ -35,7 +35,12 @@ def insertPseudoWork(work, recruiter_id):
     work_id = gen_id()
     work["work_id"] = work_id
     work["recruiter_id"] = recruiter_id
-    
+    work_date = work["work_date"].split('-')
+    end_registeration = datetime(int(work_date[0]), int(work_date[1]), int(work_date[2]), 23, 59, 59)
+    end_registeration = end_registeration - timedelta(days = 1)
+    end_registeration = str(end_registeration)
+    end_registeration = end_registeration.split(" ")
+    work["end_registeration"] = end_registeration[0]
     recruiter_credit = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["credit"]
     
     job_cost = job_cost_calculator(work["number_requirement"], work["hourly_income"], work["start_time"], work["end_time"])
