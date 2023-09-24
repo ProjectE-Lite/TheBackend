@@ -274,7 +274,7 @@ def getCandidateOfWork(uid: int):
         list.append(tmp)
     return list
 
-def delete_work_and_listwork(work_id):
+def deleteWorkAndListwork(work_id):
    recruiter_id =  WorksCollection.find_one({"work_id":work_id})['recruiter_id']
    WorksCollection.delete_one({"work_id":work_id})
    listwork = RecruitersCollection.find_one({"recruiter_id":recruiter_id})['list_of_work']
@@ -282,7 +282,7 @@ def delete_work_and_listwork(work_id):
    RecruitersCollection.update_one({"recruiter_id":recruiter_id},{'$set':{'list_of_work': listwork}})
    return 0
 
-def get_work_from_list_by_date(recruiter_id,date):
+def getRecWorkFromListByDate(recruiter_id,date):
    listwork = RecruitersCollection.find_one({"recruiter_id": recruiter_id})['list_of_work']
    listbydate = []
    for workid in listwork:

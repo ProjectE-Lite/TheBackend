@@ -96,6 +96,11 @@ async def get_work_details_by_work_and_user_id(work_id: int, user_id: int):
     return getWorkDetailsByWorkAndUserId(work_id, user_id)
 
 
+@app.get("/recruiters/{recruiter_id}/work_date/{work_date}")
+async def get_rec_work_by_date(recruiter_id: int,work_date: str):
+   return getRecWorkFromListByDate(recruiter_id,work_date)
+
+
 @app.get("/users/{user_id}/noti")
 async def get_user_notification(user_id: int):
     return getUserNotification(user_id)
@@ -155,9 +160,5 @@ async def penalized_user_credit(user_id: int):
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: int):
-   delete_work_and_listwork(work_id)
-   return "success you have delete work"
-
-@app.get("/recruiters/{recruiter_id}/works/{work_date}")
-async def get_work_by_date(recruiter_id: int,work_date: str):
-   return get_work_from_list_by_date(recruiter_id,work_date)
+   deleteWorkAndListwork(work_id)
+   return "success, you have deleted work"
