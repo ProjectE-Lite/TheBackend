@@ -44,7 +44,7 @@ class Works(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    work_description: str
+    work_description: dict
     hourly_income: int
     pot: int
     list_of_candidate: list
@@ -59,7 +59,7 @@ class UpdateWorks(BaseModel):
     name: Optional[str] 
     type_of_work: Optional[str]
     number_requirement: Optional[int]
-    work_description: Optional[str]
+    work_description: Optional[dict]
     hourly_income: Optional[int]
     end_registeration: Optional[str]
     work_date: Optional[str]
@@ -112,7 +112,7 @@ class WorksRequest(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    work_description: str
+    work_description: dict
     hourly_income: int
     pot: int
     list_of_candidate: list
