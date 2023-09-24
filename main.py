@@ -152,3 +152,12 @@ def withdraw_user_credit(user_id: int, work_id: int):
 @app.patch("/users/{user_id}/absent")
 async def penalized_user_credit(user_id: int):
     return penalizedUserCredit(user_id)
+
+@app.delete("/works/deleteworks/{work_id}")
+async def delete_work(work_id: int):
+   delete_work_and_listwork(work_id)
+   return "success you have delete work"
+
+@app.get("/works/{recruiter_id}/{work_date}")
+async def get_work_by_date(recruiter_id: int,work_date: str):
+   return get_work_from_list_by_date(recruiter_id,work_date)
