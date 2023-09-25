@@ -96,6 +96,11 @@ async def get_work_details_by_work_and_user_id(work_id: int, user_id: int):
     return getWorkDetailsByWorkAndUserId(work_id, user_id)
 
 
+@app.get("/recruiters/{recruiter_id}/works")
+async def get_all_work_in_recruiter(recruiter_id: int):
+    return getAllWorkInRecruiter(recruiter_id)
+
+
 @app.get("/recruiters/{recruiter_id}/work_date/{work_date}")
 async def get_rec_work_by_date(recruiter_id: int,work_date: str):
    return getRecWorkFromListByDate(recruiter_id,work_date)

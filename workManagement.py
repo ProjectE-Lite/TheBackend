@@ -98,6 +98,20 @@ def getWorkDetailsByWorkAndUserId(wid: int, uid: int):
     return {"status": ans["user_status"], "work_detail": winfo}
 
 
+def getAllWorkInRecruiter(rid: int):
+    ans = []
+    rinfo = RecruitersCollection.find_one({"recruiter_id": rid}, {"_id": 0})
+    if not rinfo:
+        raise HTTPException(status_code=400, detail="Recruiter not found")
+    work = rinfo["list_of_work"]
+    if not work:
+        raise HTTPException(status_code=400, detail="No jobs")
+    work_list = WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0})
+    for i in work_list:
+        ans.append(i["work_id"])
+    return {"work_list": ans}
+
+
 def getUserNotification(uid: int):
     uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
     if not uinfo:
