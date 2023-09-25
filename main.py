@@ -111,6 +111,11 @@ async def get_user_notification(user_id: int):
     return getUserNotification(user_id)
 
 
+@app.get("/recruiters/{recruiter_id}/noti")
+async def get_recruiter_notification(recruiter_id: int):
+    return getRecruiterNotification(recruiter_id)
+
+
 @app.get("/users/{user_id}/review_points/{point}")
 async def get_review_by_points(user_id: int, point: int):
     return getReviewByPoints(user_id, point)

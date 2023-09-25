@@ -123,6 +123,17 @@ def getUserNotification(uid: int):
     return ans
 
 
+def getRecruiterNotification(rid: int):
+    rinfo = RecruitersCollection.find_one({"recruiter_id": rid}, {"_id": 0})
+    if not rinfo:
+        raise HTTPException(status_code=400, detail="Recruiter not found")
+    noti = rinfo["notification"]
+    if not noti:
+        raise HTTPException(status_code=400, detail="No notifications")
+    ans = list(RecruitersNotificationCollection.find({"recruiter_noti_id": {"$in": noti}}, {"_id": 0}))
+    return ans
+
+
 def addUserToListOfCandidate(work_id, user_id):
     WorksCollection.update_one({"work_id": work_id}, {"$addToSet": {"list_of_candidate": user_id}})
     
