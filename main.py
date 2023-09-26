@@ -1,7 +1,5 @@
-import pydantic
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
-from bson import ObjectId
 from database import *
 from model import *
 from recruiterManagement import *
@@ -10,8 +8,6 @@ from workManagement import *
 from helpingFunction import *
 from auth.jwt_handler import *
 from auth.jwt_bearer import *
-
-pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 
 app = FastAPI()
 
