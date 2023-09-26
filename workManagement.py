@@ -60,7 +60,7 @@ def getWorkByWorkDate(work_date):
     ans = []
     work_list = WorksCollection.find({"work_date": work_date})
     for i in work_list:
-        ans.append(str(i["work_id"]))
+        ans.append(str(i["_id"]))
     return {"work_list": ans}
 
 
@@ -71,111 +71,112 @@ def getWorkByWorkID(work_id):
     return return_items(item, "work")
 
 
-def getAllWorkInUser(uid: int):
+def getAllWorkInUser(uid: str):
     ans = []
-    uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
+    uinfo = UsersCollection.find_one({"_id": ObjectId(uid)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     work = uinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    work_list = WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0})
+    objwork = [ObjectId(i) for i in work]
+    work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
-        ans.append(i["work_id"])
+        ans.append(str(i["_id"]))
     return {"work_list": ans}
 
 
-def getWorkDetailsByWorkAndUserId(wid: int, uid: int):
-    winfo = WorksCollection.find_one({"work_id": wid}, {"_id": 0})
+def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
+    winfo = WorksCollection.find_one({"_id": ObjectId(wid)})
     if not winfo:
         raise HTTPException(status_code=400, detail="Work not found")
-    if str(uid) not in winfo["user_status"]:
+    if uid not in winfo["user_status"]:
         raise HTTPException(status_code=400, detail="User not found")
-    sid = winfo["user_status"][str(uid)]
-    ans = UserStatusInWorkCollection.find_one({"user_status_id": sid}, {"_id": 0})
+    sid = winfo["user_status"][uid]
+    ans = UserStatusInWorkCollection.find_one({"_id": ObjectId(sid)})
     return {"status": ans["user_status"], "work_detail": winfo}
 
 
-def getAllWorkInRecruiter(rid: int):
+def getAllWorkInRecruiter(rid: str):
     ans = []
-    rinfo = RecruitersCollection.find_one({"recruiter_id": rid}, {"_id": 0})
+    rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
     work = rinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    work_list = WorksCollection.find({"work_id": {"$in": work}}, {"_id": 0})
+    objwork = [ObjectId(i) for i in work]
+    work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
-        ans.append(i["work_id"])
+        ans.append(str(i["_id"]))
     return {"work_list": ans}
 
 
-def getUserNotification(uid: int):
-    uinfo = UsersCollection.find_one({"user_id": uid}, {"_id": 0})
+def getUserNotification(uid: str):
+    uinfo = UsersCollection.find_one({"_id": ObjectId(uid)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     noti = uinfo["notification"]
     if not noti:
         raise HTTPException(status_code=400, detail="No notifications")
-    ans = list(UsersNotificationCollection.find({"user_noti_id": {"$in": noti}}, {"_id": 0}))
+    objnoti = [ObjectId(i) for i in noti]
+    ans = list(UsersNotificationCollection.find({"_id": {"$in": objnoti}}))
     return ans
 
 
-def getRecruiterNotification(rid: int):
-    rinfo = RecruitersCollection.find_one({"recruiter_id": rid}, {"_id": 0})
+def getRecruiterNotification(rid: str):
+    rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
     noti = rinfo["notification"]
     if not noti:
         raise HTTPException(status_code=400, detail="No notifications")
-    ans = list(RecruitersNotificationCollection.find({"recruiter_noti_id": {"$in": noti}}, {"_id": 0}))
+    objnoti = [ObjectId(i) for i in noti]
+    ans = list(RecruitersNotificationCollection.find({"_id": {"$in": objnoti}}))
     return ans
 
 
 def addUserToListOfCandidate(work_id, user_id):
-    WorksCollection.update_one({"work_id": work_id}, {"$addToSet": {"list_of_candidate": user_id}})
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$addToSet": {"list_of_candidate": user_id}})
     
 
 def updateUserStatus(user_status_id, user_status):
     all_updates = {
         "$set": {"user_status": user_status}
     }
-    UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_status_id)}, all_updates)
 
 
 def updateUserStatusInterview(user_status_id, interview_appointment):
     all_updates = {
         "$set": {"interview_appointment": interview_appointment}
     }
-    UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_status_id)}, all_updates)
 
 
 def updateUserStatusWorkApp(user_status_id, work_appointment):
     all_updates = {
         "$set": {"work_appointment": work_appointment}
     }
-    UserStatusInWorkCollection.update_one({"user_status_id": user_status_id}, all_updates)
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_status_id)}, all_updates)
     
 
 def initUserStatus(work_id, user_id):
-    user_status_id = gen_id()
-    
     user_status = {
-        "user_status_id": user_status_id,
-        "user_status": "waiting",
+        "user_status": "รอ",
         "interview_appointment": None,
         "work_appointment": None
     }
     
-    UserStatusInWorkCollection.insert_one(user_status)
+    sid = UserStatusInWorkCollection.insert_one(user_status)
     temp = str(user_id)
     
-    target_dict = {"$set": {f"user_status.{temp}": user_status_id}}
-    WorksCollection.update_one({"work_id": work_id}, target_dict)
+    target_dict = {"$set": {f"user_status.{temp}": str(sid["_id"])}}
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, target_dict)
    
 
 def isEndRegisteration(work_id):
-    end_registeration = WorksCollection.find_one({"work_id": work_id})["end_registeration"].split('-')
+    end_registeration = WorksCollection.find_one({"_id": ObjectId(work_id)})["end_registeration"].split('-')
     
     end_registeration = datetime(int(end_registeration[0]), int(end_registeration[1]), int(end_registeration[2]), 23, 59, 59)
 
@@ -189,7 +190,7 @@ def isEndRegisteration(work_id):
 
 def getWorkStatusAndListOfUser(work_id):
     isEnd = isEndRegisteration(work_id)
-    work_cursor = WorksCollection.find_one({"work_id": work_id})
+    work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})
     num_require = work_cursor["number_requirement"]
     
     
@@ -205,25 +206,26 @@ def getWorkStatusAndListOfUser(work_id):
 
 
 def getUserDetail(user_id):
-    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     return uinfo
 
 
 def getReviewByPoints(user_id, point):
-    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     if str(point) not in uinfo["feedback"]:
         raise HTTPException(status_code=400, detail="Review not found")
     review = uinfo["feedback"][str(point)]
-    ans = list(ReviewsCollection.find({"review_id": {"$in": review}}, {"_id": 0}))
+    objreview = [ObjectId(i) for i in review]
+    ans = list(ReviewsCollection.find({"_id": {"$in": objreview}}))
     return ans
 
 
 def getListOfWorker(work_id):
-    winfo = WorksCollection.find_one({"work_id": work_id}, {"_id": 0})
+    winfo = WorksCollection.find_one({"_id": ObjectId(work_id)})
     if not winfo:
         raise HTTPException(status_code=400, detail="Work not found")
     worker = winfo["list_of_worker"]
@@ -232,19 +234,19 @@ def getListOfWorker(work_id):
 
 def penalizedUserCredit(user_id):
     penalty = 500
-    uinfo = UsersCollection.find_one({"user_id": user_id}, {"_id": 0})
+    uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
-    UsersCollection.update_one({"user_id": user_id},
+    UsersCollection.update_one({"_id": ObjectId(user_id)},
                                {"$set": {"credit": uinfo["credit"] - penalty}})
     return {"detail": "User has been penalized"}
 
 
 def AppointmentButton(user_id, work_id, date, time):
-    recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
-    recruiter_name = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["name"]
+    recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
     text = "You have an appointment of interview in " + date + time + " from " + recruiter_name
-    user_status_id = WorksCollection.find_one({"work_id": work_id})["user_status"][str(user_id)]
+    user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatusInterview(user_status_id, date+time)
     email = "suphanat.wi@ku.th"
     #email = UsersCollection.find_one({"user_id": user_id})["email"]
@@ -257,13 +259,13 @@ def AcceptButton(user_id, work_id):
         "$inc": {"number_requirement": -1},
         "$addToSet": {"list_of_worker": user_id}
     }
-    WorksCollection.update_one({"work_id": work_id}, all_updates)
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, all_updates)
 
-    recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
-    recruiter_name = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["name"]
-    work_name = WorksCollection.find_one({"work_id": work_id})["name"]
+    recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+    work_name = WorksCollection.find_one({"_id": ObjectId(work_id)})["name"]
     text = f"{recruiter_name} accepted you to join {work_name}"    
-    user_status_id = WorksCollection.find_one({"work_id": work_id})["user_status"][str(user_id)]
+    user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatus(user_status_id, "working")
     updateUserStatusWorkApp(user_status_id, "site work details")
     email = "suphanat.wi@ku.th"
@@ -271,26 +273,26 @@ def AcceptButton(user_id, work_id):
 
 
 def updateDetailWork(work_id,work):
-    work_data = WorksCollection.find_one({"work_id": work_id})
+    work_data = WorksCollection.find_one({"_id": ObjectId(work_id)})
     recruiter_id = work_data["recruiter_id"]
     # ถ้าเปลี่ยนพวกเวลา จำนวนคนรับ ราคา ก็ต้องเปลี่ยนpotด้วย
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$inc": {"credit": work_data["pot"]}})
-    recruiter_credit = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["credit"]    
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": work_data["pot"]}})
+    recruiter_credit = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["credit"]    
     job_cost = job_cost_calculator(work["number_requirement"], work["hourly_income"], work["start_time"], work["end_time"])
     if recruiter_credit < job_cost:
         return "can't edit, your credit is too low, need topup"
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$inc": {"credit": -job_cost}})
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
-    WorksCollection.update_one({'work_id':work_id},{'$set':work})
+    WorksCollection.update_one({'_id': ObjectId(work_id)},{'$set':work})
     return 0
 
 
-def getCandidateOfWork(uid: int):
-    listofworker = WorksCollection.find_one({"work_id": uid})
+def getCandidateOfWork(uid: str):
+    listofworker = WorksCollection.find_one({"_id": ObjectId(uid)})
     values = listofworker["list_of_candidate"]
     list=[]
     for i in values:
-        namesofid = UsersCollection.find_one({"user_id":i})
+        namesofid = UsersCollection.find_one({"_id": ObjectId(i)})
         first = namesofid["first_name"]
         last =  namesofid["last_name"]
         tmp=first + " " + last
@@ -298,18 +300,18 @@ def getCandidateOfWork(uid: int):
     return list
 
 def deleteWorkAndListwork(work_id):
-   recruiter_id =  WorksCollection.find_one({"work_id":work_id})['recruiter_id']
-   WorksCollection.delete_one({"work_id":work_id})
-   listwork = RecruitersCollection.find_one({"recruiter_id":recruiter_id})['list_of_work']
+   recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+   WorksCollection.delete_one({"_id": ObjectId(work_id)})
+   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
    listwork.remove(work_id)
-   RecruitersCollection.update_one({"recruiter_id":recruiter_id},{'$set':{'list_of_work': listwork}})
+   RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
    return 0
 
 def getRecWorkFromListByDate(recruiter_id,date):
-   listwork = RecruitersCollection.find_one({"recruiter_id": recruiter_id})['list_of_work']
+   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
    listbydate = []
    for workid in listwork:
-        work = WorksCollection.find_one({"work_id": workid})
+        work = WorksCollection.find_one({"_id": ObjectId(workid)})
         if work['work_date'] == date:
             listbydate.append(workid)
    return listbydate

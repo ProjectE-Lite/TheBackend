@@ -10,7 +10,7 @@ def insertPseudoRecruiter(recruiter):
 
 
 def check_recruiter(uname: str, passwd: str):
-    rinfo = RecruitersCollection.find_one({"username": uname, "password": passwd}, {"_id": 0})
+    rinfo = RecruitersCollection.find_one({"username": uname, "password": passwd})
     if not rinfo:
         return 0
     else:
@@ -23,7 +23,7 @@ def check_recruiter(uname: str, passwd: str):
 
 
 def addHaveWorkedWith(work_id, user_id):
-    work_cursor = WorksCollection.find_one({"_id": work_id})
+    work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})
     work_type = work_cursor["type_of_work"]
     recruiter_id = work_cursor["_id"]
 

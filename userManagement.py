@@ -21,18 +21,18 @@ def check_user(uname: str, passwd: str):
     
 
 def addWorkToListOfWork(work_id, user_id):
-    UsersCollection.update_one({"_id": user_id}, {"$addToSet": {"list_of_work": work_id}})
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_work": work_id}})
 
 
 def matchingFieldOfInterested(type_of_work):
     users_cursor = UsersCollection.find({f"field_of_interested.{type_of_work}": True})
     for item in users_cursor:
-        print("worktype matching with user: ",item["_id"])
+        print("worktype matching with user: ",str(item["_id"]))
         #notiToUser(item["user_id"])
 
 
-def getUserListOfMoneyExchange(uid: int):
-    moneylist=MoneyExchangeCollection.find_one({"_id":uid})
+def getUserListOfMoneyExchange(uid: str):
+    moneylist=MoneyExchangeCollection.find_one({"_id": ObjectId(uid)})
     values = moneylist["total_credit"]
     values = str(values)
     list_of_money=moneylist["list_of_money_exchange"]
@@ -42,6 +42,7 @@ def getUserListOfMoneyExchange(uid: int):
     return dict
 
 
+#์ALERT NEED FIXING
 def withdrawUserCredit(uid: int,wid: int):
     moneylist=MoneyExchangeCollection.find_one({"_id":uid})
     values = moneylist["total_credit"]

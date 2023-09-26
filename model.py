@@ -111,7 +111,6 @@ class WorksRequest(BaseModel):
     number_requirement: int
     work_description: dict
     hourly_income: int
-    pot: int
     list_of_candidate: list
     list_of_worker: list
     end_registeration: str
