@@ -9,13 +9,11 @@ printer = pprint.PrettyPrinter()
 
 
 def insertPseudoUser(user):
-    user_id = gen_id()
-    user["user_id"] = user_id
     UsersCollection.insert_one(user)
 
 
 def check_user(uname: str, passwd: str):
-    uinfo = UsersCollection.find_one({"username": uname, "password": passwd}, {"_id": 0})
+    uinfo = UsersCollection.find_one({"username": uname, "password": passwd})
     if not uinfo:
         return 0
     else:
@@ -23,18 +21,18 @@ def check_user(uname: str, passwd: str):
     
 
 def addWorkToListOfWork(work_id, user_id):
-    UsersCollection.update_one({"user_id": user_id}, {"$addToSet": {"list_of_work": work_id}})
+    UsersCollection.update_one({"_id": user_id}, {"$addToSet": {"list_of_work": work_id}})
 
 
 def matchingFieldOfInterested(type_of_work):
     users_cursor = UsersCollection.find({f"field_of_interested.{type_of_work}": True})
     for item in users_cursor:
-        print("worktype matching with user: ",item["user_id"])
+        print("worktype matching with user: ",item["_id"])
         #notiToUser(item["user_id"])
 
 
 def getUserListOfMoneyExchange(uid: int):
-    moneylist=MoneyExchangeCollection.find_one({"user_id":uid})
+    moneylist=MoneyExchangeCollection.find_one({"_id":uid})
     values = moneylist["total_credit"]
     values = str(values)
     list_of_money=moneylist["list_of_money_exchange"]
@@ -45,7 +43,7 @@ def getUserListOfMoneyExchange(uid: int):
 
 
 def withdrawUserCredit(uid: int,wid: int):
-    moneylist=MoneyExchangeCollection.find_one({"user_id":uid})
+    moneylist=MoneyExchangeCollection.find_one({"_id":uid})
     values = moneylist["total_credit"]
 
     values=values-wid
@@ -66,14 +64,14 @@ def withdrawUserCredit(uid: int,wid: int):
                     "list_of_money_exchange":[mod_tmp,-wid]
                 }
                 }
-    MoneyExchangeCollection.update_one({"user_id":uid},txt_update)
+    MoneyExchangeCollection.update_one({"_id":uid},txt_update)
     
-    userlist=UsersCollection.find_one({"user_id":uid})
+    userlist=UsersCollection.find_one({"_id":uid})
     values = userlist["credit"]
     values=values-wid
     txt_update={"$set":{
                             "credit" : values,
                         }
                 }
-    UsersCollection.update_one({"user_id":uid},txt_update)
+    UsersCollection.update_one({"_id":uid},txt_update)
     return {"details": f"Tranfer to Bank {values}"}

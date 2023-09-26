@@ -33,8 +33,6 @@ def return_items(item, name_header):
 
 
 def insertPseudoWork(work, recruiter_id):
-    work_id = gen_id()
-    work["work_id"] = work_id
     work["recruiter_id"] = recruiter_id
     work_date = work["work_date"].split('-')
     end_registeration = datetime(int(work_date[0]), int(work_date[1]), int(work_date[2]), 23, 59, 59)
@@ -42,17 +40,17 @@ def insertPseudoWork(work, recruiter_id):
     end_registeration = str(end_registeration)
     end_registeration = end_registeration.split(" ")
     work["end_registeration"] = end_registeration[0]
-    recruiter_credit = RecruitersCollection.find_one({"recruiter_id": recruiter_id})["credit"]
+    recruiter_credit = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["credit"]
     
     job_cost = job_cost_calculator(work["number_requirement"], work["hourly_income"], work["start_time"], work["end_time"])
     if recruiter_credit < job_cost:
         return "your credit is too low just go to topup"
 
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$inc": {"credit": -job_cost}})
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
     work["recruiter_id"] = recruiter_id
     WorksCollection.insert_one(work)
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$addToSet": {"list_of_work": work_id}})
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(work["_id"])}})
     matchingFieldOfInterested(work["type_of_work"])
     
     return return_items(work, "work")
@@ -62,12 +60,12 @@ def getWorkByWorkDate(work_date):
     ans = []
     work_list = WorksCollection.find({"work_date": work_date})
     for i in work_list:
-        ans.append(i["work_id"])
+        ans.append(str(i["work_id"]))
     return {"work_list": ans}
 
 
 def getWorkByWorkID(work_id):
-    item = WorksCollection.find_one({"work_id": work_id})
+    item = WorksCollection.find_one({"_id": ObjectId(work_id)})
     if not item:
         raise HTTPException(status_code=400, detail="Work not found")
     return return_items(item, "work")

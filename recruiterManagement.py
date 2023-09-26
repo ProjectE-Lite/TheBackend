@@ -6,8 +6,6 @@ from helpingFunction import *
 
 
 def insertPseudoRecruiter(recruiter):
-    recruiter_id = gen_id()
-    recruiter["recruiter_id"] = recruiter_id
     RecruitersCollection.insert_one(recruiter)
 
 
@@ -25,16 +23,16 @@ def check_recruiter(uname: str, passwd: str):
 
 
 def addHaveWorkedWith(work_id, user_id):
-    work_cursor = WorksCollection.find_one({"work_id": work_id})
+    work_cursor = WorksCollection.find_one({"_id": work_id})
     work_type = work_cursor["type_of_work"]
-    recruiter_id = work_cursor["recruiter_id"]
+    recruiter_id = work_cursor["_id"]
 
     all_updates = {
         "$set" : {f"have_worked_with.{work_type}.{user_id}": True}
     }
 
 
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, all_updates)
+    RecruitersCollection.update_one({"_id": recruiter_id}, all_updates)
 
 
 

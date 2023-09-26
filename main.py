@@ -1,5 +1,7 @@
+import pydantic
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+from bson import ObjectId
 from database import *
 from model import *
 from recruiterManagement import *
@@ -8,6 +10,8 @@ from workManagement import *
 from helpingFunction import *
 from auth.jwt_handler import *
 from auth.jwt_bearer import *
+
+pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 
 app = FastAPI()
 
@@ -23,14 +27,14 @@ async def gen12datenext():
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
     rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["recruiter_id"]}}
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["_id"]}}
 
 
 @app.post("/users", tags=["Users"])
 async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
     uinfo = check_user(user.username, user.password)
-    return {"access token": signJWT(user.username), "data": {"user_id": uinfo["user_id"]}}
+    return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
 
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):

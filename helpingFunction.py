@@ -4,19 +4,6 @@ import pprint
 from database import *
 
 
-base_id = 0
-
-
-def gen_id():
-    global base_id
-    base_id += 1
-    return base_id
-
-
-def reset_id():
-    global base_id
-    base_id = 0
-
 
 def return_items(item, name_header):
     return {name_header: item}
