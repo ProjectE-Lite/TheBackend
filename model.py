@@ -3,7 +3,6 @@ from typing import Optional
 
 
 class Recruiters(BaseModel):
-    recruiter_id: int
     username: str
     password: str
     name: str
@@ -16,7 +15,6 @@ class Recruiters(BaseModel):
     list_of_money_exchange: list
 
 class Users(BaseModel):
-    user_id: int
     username: str
     password: str
     first_name: str
@@ -39,7 +37,6 @@ class Users(BaseModel):
     feedback: dict
 
 class Works(BaseModel):
-    work_id: int
     recruiter_id: int
     name: str
     type_of_work: str
@@ -114,7 +111,6 @@ class WorksRequest(BaseModel):
     number_requirement: int
     work_description: dict
     hourly_income: int
-    pot: int
     list_of_candidate: list
     list_of_worker: list
     end_registeration: str

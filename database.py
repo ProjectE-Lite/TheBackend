@@ -6,7 +6,7 @@ client = MongoClient(
 )
 
 
-collection = client["NineTest"]
+collection = client["E-lite"]
 UsersCollection = collection["Users"]
 RecruitersCollection = collection["Recruiters"]
 WorksCollection = collection["Works"]

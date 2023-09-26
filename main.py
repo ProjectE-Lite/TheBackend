@@ -1,5 +1,7 @@
+import pydantic
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+from bson import ObjectId
 from database import *
 from model import *
 from recruiterManagement import *
@@ -8,6 +10,8 @@ from workManagement import *
 from helpingFunction import *
 from auth.jwt_handler import *
 from auth.jwt_bearer import *
+
+pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 
 app = FastAPI()
 
@@ -23,17 +27,17 @@ async def gen12datenext():
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
     insertPseudoRecruiter(vars(recruiter))
     rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["recruiter_id"]}}
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
 
 
 @app.post("/users", tags=["Users"])
 async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
     uinfo = check_user(user.username, user.password)
-    return {"access token": signJWT(user.username), "data": {"user_id": uinfo["user_id"]}}
+    return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
 
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
-async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
+async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
     # notiFieldOfInteresterd()
     return insertPseudoWork(vars(work), recruiter_id)
 
@@ -42,7 +46,7 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: int):
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
         rinfo = check_recruiter(recruiter.username, recruiter.password)
-        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": rinfo["recruiter_id"]}}
+        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["recruiter_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -51,13 +55,13 @@ async def recruiter_login(recruiter: Login):
 async def user_login(user: Login):
     if check_user(user.username, user.password):
         uinfo = check_user(user.username, user.password)
-        return {"access token": signJWT(user.username), "data": {"user_id": uinfo["user_id"]}}
+        return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["user_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
 
 @app.get("/works/{work_id}")
-async def get_work_by_work_id(work_id: int):
+async def get_work_by_work_id(work_id: str):
     return getWorkByWorkID(work_id)
 
 
@@ -67,73 +71,73 @@ async def get_work_by_work_date(work_date: str):
 
 
 @app.get("/works/{work_id}/status")
-async def get_work_status_and_list_of_user(work_id: int):
+async def get_work_status_and_list_of_user(work_id: str):
     return getWorkStatusAndListOfUser(work_id)
 
 
 @app.get("/works/{work_id}/candidate")
-def get_candidate_of_work(work_id: int):
+def get_candidate_of_work(work_id: str):
     return getCandidateOfWork(work_id)
 
 
 @app.get("/works/{work_id}/worker")
-async def get_list_of_worker(work_id: int):
+async def get_list_of_worker(work_id: str):
     return getListOfWorker(work_id)
 
 
 @app.get("/users/{user_id}")
-async def get_user_detail(user_id: int):
+async def get_user_detail(user_id: str):
     return getUserDetail(user_id)
 
 
 @app.get("/users/{user_id}/works")
-async def get_all_work_in_user(user_id: int):
+async def get_all_work_in_user(user_id: str):
     return getAllWorkInUser(user_id)
 
 
 @app.get("/users/{user_id}/works/{work_id}")
-async def get_work_details_by_work_and_user_id(work_id: int, user_id: int):
+async def get_work_details_by_work_and_user_id(work_id: str, user_id: str):
     return getWorkDetailsByWorkAndUserId(work_id, user_id)
 
 
 @app.get("/recruiters/{recruiter_id}/works")
-async def get_all_work_in_recruiter(recruiter_id: int):
+async def get_all_work_in_recruiter(recruiter_id: str):
     return getAllWorkInRecruiter(recruiter_id)
 
 
 @app.get("/recruiters/{recruiter_id}/work_date/{work_date}")
-async def get_rec_work_by_date(recruiter_id: int,work_date: str):
+async def get_rec_work_by_date(recruiter_id: str,work_date: str):
    return getRecWorkFromListByDate(recruiter_id,work_date)
 
 
 @app.get("/users/{user_id}/noti")
-async def get_user_notification(user_id: int):
+async def get_user_notification(user_id: str):
     return getUserNotification(user_id)
 
 
 @app.get("/recruiters/{recruiter_id}/noti")
-async def get_recruiter_notification(recruiter_id: int):
+async def get_recruiter_notification(recruiter_id: str):
     return getRecruiterNotification(recruiter_id)
 
 
 @app.get("/users/{user_id}/review_points/{point}")
-async def get_review_by_points(user_id: int, point: int):
+async def get_review_by_points(user_id: str, point: int):
     return getReviewByPoints(user_id, point)
 
 
 @app.get("/users/{user_id}/money_exchange")
-def get_user_list_of_money_exchange(user_id: int):
+def get_user_list_of_money_exchange(user_id: str):
     return getUserListOfMoneyExchange(user_id)
 
 
 @app.patch("/works/{work_id}")
-async def update_work(work_id: int , work: UpdateWorks):
+async def update_work(work_id: str, work: UpdateWorks):
     updateDetailWork(work_id,work.dict(exclude_unset = True))
     return "success, you have updated work"
 
 
 @app.patch("/users/{user_id}/apply/{work_id}")
-async def apply_button(user_id: int, work_id: int):
+async def apply_button(user_id: str, work_id: str):
     addUserToListOfCandidate(work_id, user_id)
     addWorkToListOfWork(work_id, user_id)
     initUserStatus(work_id, user_id)
@@ -143,32 +147,32 @@ async def apply_button(user_id: int, work_id: int):
 
 
 @app.patch("/users/{user_id}/accept/{work_id}")
-async def accept_button(user_id: int, work_id: int):
+async def accept_button(user_id: str, work_id: str):
     AcceptButton(user_id, work_id)
 
 
 @app.patch("/users/{user_id}/appoint/{work_id}/{date}/{time}")
-async def appointment_button(user_id: int, work_id: int, date: str, time: str):
+async def appointment_button(user_id: str, work_id: str, date: str, time: str):
     AppointmentButton(user_id, work_id, date, time)
 
 
 @app.patch("/users/{user_id}/payment/{work_id}")
-async def payment_method(work_id: int, user_id: int, review_body: ReviewsRequest):
+async def payment_method(work_id: str, user_id: str, review_body: ReviewsRequest):
     addHaveWorkedWith(work_id, user_id)
     manageReview(user_id, work_id, vars(review_body))
     manageMoneyExchange(work_id, user_id)
 
 
 @app.patch("/users/{user_id}/withdraw/{work_id}")
-def withdraw_user_credit(user_id: int, work_id: int):
+def withdraw_user_credit(user_id: str, work_id: str):
     return withdrawUserCredit(user_id, work_id)
 
 
 @app.patch("/users/{user_id}/absent")
-async def penalized_user_credit(user_id: int):
+async def penalized_user_credit(user_id: str):
     return penalizedUserCredit(user_id)
 
 @app.delete("/works/{work_id}")
-async def delete_work(work_id: int):
+async def delete_work(work_id: str):
    deleteWorkAndListwork(work_id)
    return "success, you have deleted work"
