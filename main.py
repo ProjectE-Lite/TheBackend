@@ -42,7 +42,7 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
         rinfo = check_recruiter(recruiter.username, recruiter.password)
-        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["recruiter_id"])}}
+        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -51,7 +51,7 @@ async def recruiter_login(recruiter: Login):
 async def user_login(user: Login):
     if check_user(user.username, user.password):
         uinfo = check_user(user.username, user.password)
-        return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["user_id"])}}
+        return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
