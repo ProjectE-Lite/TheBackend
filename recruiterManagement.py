@@ -16,7 +16,7 @@ def check_recruiter(uname: str, passwd: str):
     if not rinfo:
         return 0
     else:
-        return 1
+        return rinfo
     
 
 #can recruiters add type_of_work?

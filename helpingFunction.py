@@ -6,6 +6,7 @@ from database import *
 
 base_id = 0
 
+
 def gen_id():
     global base_id
     base_id += 1

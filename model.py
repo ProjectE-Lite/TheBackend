@@ -44,14 +44,13 @@ class Works(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    work_description: str
+    work_description: dict
     hourly_income: int
     pot: int
-    list_of_candidiate: list
+    list_of_candidate: list
     list_of_worker: list
     end_registeration: str
     work_date: str
-    work_day: str
     start_time: str
     end_time: str
     user_status: dict
@@ -60,7 +59,7 @@ class UpdateWorks(BaseModel):
     name: Optional[str] 
     type_of_work: Optional[str]
     number_requirement: Optional[int]
-    work_description: Optional[str]
+    work_description: Optional[dict]
     hourly_income: Optional[int]
     end_registeration: Optional[str]
     work_date: Optional[str]
@@ -113,17 +112,20 @@ class WorksRequest(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    work_description: str
+    work_description: dict
     hourly_income: int
     pot: int
-    list_of_candidiate: list
+    list_of_candidate: list
     list_of_worker: list
     end_registeration: str
     work_date: str
-    work_day: str
     start_time: str
     end_time: str
     user_status: dict
+
+class ReviewsRequest(BaseModel):
+    score: int
+    text: str
 
 class Login(BaseModel):
     username: str
