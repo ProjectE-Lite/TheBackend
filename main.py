@@ -85,6 +85,10 @@ async def get_list_of_worker(work_id: str):
 async def get_user_detail(user_id: str):
     return getUserDetail(user_id)
 
+@app.get("/recruiters/{recruiter_id}")
+async def get_recruiter_detail(recruiter_id: str):
+    return getRecruiterDetail(recruiter_id)
+
 
 @app.get("/users/{user_id}/works")
 async def get_all_work_in_user(user_id: str):
