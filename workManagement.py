@@ -147,6 +147,16 @@ def getRecruiterNotification(rid: str):
     return ans
 
 
+def getUserNotiDetail(nid: str):
+    unoti = UsersNotificationCollection.find_one({"_id": ObjectId(nid)})
+    return improved_return(unoti)
+
+
+def getRecNotiDetail(nid: str):
+    rnoti = RecruitersNotificationCollection.find_one({"_id": ObjectId(nid)})
+    return improved_return(rnoti)
+
+
 def addUserToListOfCandidate(work_id, user_id):
     WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$addToSet": {"list_of_candidate": user_id}})
     

@@ -72,7 +72,7 @@ async def get_work_status_and_list_of_user(work_id: str):
 
 
 @app.get("/works/{work_id}/candidate")
-def get_candidate_of_work(work_id: str):
+async def get_candidate_of_work(work_id: str):
     return getCandidateOfWork(work_id)
 
 
@@ -122,8 +122,18 @@ async def get_review_by_points(user_id: str, point: int):
 
 
 @app.get("/users/{user_id}/money_exchange")
-def get_user_list_of_money_exchange(user_id: str):
+async def get_user_list_of_money_exchange(user_id: str):
     return getUserListOfMoneyExchange(user_id)
+
+
+@app.get("/users/noti/{noti_id}")
+async def get_user_noti_detail(noti_id: str):
+    return getUserNotiDetail(noti_id)
+
+
+@app.get("/recruiters/noti/{noti_id}")
+async def get_recruiter_noti_detail(noti_id: str):
+    return getRecNotiDetail(noti_id)
 
 
 @app.patch("/works/{work_id}")
