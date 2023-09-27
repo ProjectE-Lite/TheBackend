@@ -42,7 +42,6 @@ def getUserListOfMoneyExchange(uid: str):
     return dict
 
 
-#์ALERT NEED FIXING
 def withdrawUserCredit(uid: str,credit: int):    
     tmp = str(datetime.now())[:-3]
     charinsert="+00:00"
@@ -59,8 +58,7 @@ def withdrawUserCredit(uid: str,credit: int):
                 }
     MoneyExchangeCollection.insert_one(txt)
     findmoneyex=MoneyExchangeCollection.find_one(txt)
-    findmoneyex=findmoneyex["_id"]
-    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": ObjectId(findmoneyex)}})
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(findmoneyex["_id"])}})
     
     userlist=UsersCollection.find_one({"_id":ObjectId(uid)})
     values = userlist["credit"]
