@@ -169,9 +169,9 @@ async def payment_method(work_id: str, user_id: str, review_body: ReviewsRequest
     manageMoneyExchange(work_id, user_id)
 
 
-@app.patch("/users/{user_id}/withdraw/{work_id}")
-def withdraw_user_credit(user_id: str, work_id: str):
-    return withdrawUserCredit(user_id, work_id)
+@app.patch("/users/{user_id}/withdraw/{credit}")
+def withdraw_user_credit(user_id: str,credit:int):
+    return withdrawUserCredit(user_id,credit)
 
 
 @app.patch("/users/{user_id}/absent")
