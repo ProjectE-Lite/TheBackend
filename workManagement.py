@@ -232,6 +232,12 @@ def getUserDetail(user_id):
         raise HTTPException(status_code=400, detail="User not found")
     return improved_return(uinfo)
 
+def getRecruiterDetail(recruiter_id):
+    recinfo = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    if not recinfo:
+        raise HTTPException(status_code=400, detail="Recruiter not found")
+    return improved_return(recinfo)
+
 
 def getReviewByPoints(user_id, point):
     ans = []
