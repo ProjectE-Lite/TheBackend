@@ -232,6 +232,7 @@ def getUserDetail(user_id):
         raise HTTPException(status_code=400, detail="User not found")
     return improved_return(uinfo)
 
+
 def getRecruiterDetail(recruiter_id):
     recinfo = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
     if not recinfo:
@@ -300,6 +301,10 @@ def AcceptButton(user_id, work_id):
     updateUserStatusWorkApp(user_status_id, "site work details")
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
+
+
+def updateDetailUser(user_id,user):
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": user})
 
 
 def updateDetailWork(work_id,work):

@@ -51,18 +51,6 @@ class Works(BaseModel):
     start_time: str
     end_time: str
     user_status: dict
-    
-class UpdateWorks(BaseModel):
-    name: Optional[str] 
-    type_of_work: Optional[str]
-    number_requirement: Optional[int]
-    work_description: Optional[dict]
-    hourly_income: Optional[int]
-    end_registeration: Optional[str]
-    work_date: Optional[str]
-    start_time: Optional[str]
-    end_time: Optional[str]
-    user_status: Optional[dict]
 
 class Reviews(BaseModel):
     recruiter_id: int
@@ -126,3 +114,29 @@ class ReviewsRequest(BaseModel):
 class Login(BaseModel):
     username: str
     password: str
+
+
+
+class UpdateUsers(BaseModel):
+    first_name: Optional[str]
+    last_name: Optional[str]
+    nick_name: Optional[str]
+    gender: Optional[str]
+    age: Optional[int]
+    birth_date: Optional[str]
+    tel: Optional[str]
+    email: Optional[str]
+    line_id: Optional[str]
+    address: Optional[str]
+
+class UpdateWorks(BaseModel):
+    name: Optional[str] 
+    type_of_work: Optional[str]
+    number_requirement: Optional[int]
+    work_description: Optional[dict]
+    hourly_income: Optional[int]
+    end_registeration: Optional[str]
+    work_date: Optional[str]
+    start_time: Optional[str]
+    end_time: Optional[str]
+    user_status: Optional[dict]

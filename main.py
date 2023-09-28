@@ -140,6 +140,12 @@ async def get_recruiter_noti_detail(noti_id: str):
     return getRecNotiDetail(noti_id)
 
 
+@app.patch("/users/{user_id}")
+async def update_user(user_id: str, user: UpdateUsers):
+    updateDetailUser(user_id,user.dict(exclude_unset = True))
+    return "success, you have updated user info"
+
+
 @app.patch("/works/{work_id}")
 async def update_work(work_id: str, work: UpdateWorks):
     updateDetailWork(work_id,work.dict(exclude_unset = True))
