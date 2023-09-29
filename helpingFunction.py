@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 import datetime
 from datetime import datetime, timedelta
 import pprint
@@ -88,33 +89,31 @@ def cost_per_person(hourly_income, start_time, end_time):
 
 def insertMoneyExchange(recruiter_id, user_id, cost):
     datenow = datetime.now()
-    money_exchange_id = gen_id()
-    money_exchange_body = {"money_exchange_id": money_exchange_id,
-                           "from": recruiter_id,
+    money_exchange_body = {"from": recruiter_id,
                            "to": user_id,
                            "date": datenow,
                            "credit": cost}
     
-    MoneyExchangeCollection.insert_one(money_exchange_body)
-    RecruitersCollection.update_one({"recruiter_id": recruiter_id}, {"$addToSet": {"list_of_money_exchange": money_exchange_id}})
-    UsersCollection.update_one({"user_id": user_id}, {"$addToSet": {"list_of_money_exchange": money_exchange_id}})
+    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
 
 
 def manageMoneyExchange(work_id, user_id):
-    workdoc = WorksCollection.find_one({"work_id": work_id})    
+    workdoc = WorksCollection.find_one({"_id": ObjectId(work_id)})    
     cost = cost_per_person(workdoc["hourly_income"], workdoc["start_time"], workdoc["end_time"])
     
     #pot -= cost
-    WorksCollection.update_one({"work_id": work_id}, {"$inc": {"pot": -cost}})
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$inc": {"pot": -cost}})
     #user.credit += cost
-    UsersCollection.update_one({"user_id": user_id}, {"$inc": {"credit": cost}})
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$inc": {"credit": cost}})
 
     # deal with MoneyExchange Database
     recruiter_id = workdoc["recruiter_id"]
     insertMoneyExchange(recruiter_id, user_id, cost)
 
-    recruiterdoc = RecruitersCollection.find_one({"recruiter_id": recruiter_id})
-    userdoc = UsersCollection.find_one({"user_id": user_id})
+    recruiterdoc = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    userdoc = UsersCollection.find_one({"_id": ObjectId(user_id)})
     
     recruiter_name = recruiterdoc["name"]
     work_name = workdoc["name"]
@@ -127,21 +126,18 @@ def manageMoneyExchange(work_id, user_id):
 def manageReview(user_id, work_id, review_body):
     
     
-    recruiter_id = WorksCollection.find_one({"work_id": work_id})["recruiter_id"]
+    recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
     score = review_body["score"]
     text = review_body["text"]
     
-    review_id = gen_id()
-    
-    review_doc = {"review_id": review_id,
-                  "recruiter_id": recruiter_id,
+    review_doc = {"recruiter_id": recruiter_id,
                   "score": score,
                   "text": text}
     
-    ReviewsCollection.insert_one(review_doc)
+    rid = ReviewsCollection.insert_one(review_doc)
 
     all_updates = {
-        "$addToSet": {f"feedback.{score}": review_id}
+        "$addToSet": {f"feedback.{score}": str(rid["_id"])}
     }
-    UsersCollection.update_one({"user_id":user_id}, all_updates)
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, all_updates)
 

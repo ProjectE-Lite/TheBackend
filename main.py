@@ -42,7 +42,7 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
         rinfo = check_recruiter(recruiter.username, recruiter.password)
-        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["recruiter_id"])}}
+        return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -51,7 +51,7 @@ async def recruiter_login(recruiter: Login):
 async def user_login(user: Login):
     if check_user(user.username, user.password):
         uinfo = check_user(user.username, user.password)
-        return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["user_id"])}}
+        return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
 
@@ -72,7 +72,7 @@ async def get_work_status_and_list_of_user(work_id: str):
 
 
 @app.get("/works/{work_id}/candidate")
-def get_candidate_of_work(work_id: str):
+async def get_candidate_of_work(work_id: str):
     return getCandidateOfWork(work_id)
 
 
@@ -84,6 +84,10 @@ async def get_list_of_worker(work_id: str):
 @app.get("/users/{user_id}")
 async def get_user_detail(user_id: str):
     return getUserDetail(user_id)
+
+@app.get("/recruiters/{recruiter_id}")
+async def get_recruiter_detail(recruiter_id: str):
+    return getRecruiterDetail(recruiter_id)
 
 
 @app.get("/users/{user_id}/works")
@@ -122,8 +126,24 @@ async def get_review_by_points(user_id: str, point: int):
 
 
 @app.get("/users/{user_id}/money_exchange")
-def get_user_list_of_money_exchange(user_id: str):
+async def get_user_list_of_money_exchange(user_id: str):
     return getUserListOfMoneyExchange(user_id)
+
+
+@app.get("/users/noti/{noti_id}")
+async def get_user_noti_detail(noti_id: str):
+    return getUserNotiDetail(noti_id)
+
+
+@app.get("/recruiters/noti/{noti_id}")
+async def get_recruiter_noti_detail(noti_id: str):
+    return getRecNotiDetail(noti_id)
+
+
+@app.patch("/users/{user_id}")
+async def update_user(user_id: str, user: UpdateUsers):
+    updateDetailUser(user_id,user.dict(exclude_unset = True))
+    return "success, you have updated user info"
 
 
 @app.patch("/works/{work_id}")
@@ -159,9 +179,9 @@ async def payment_method(work_id: str, user_id: str, review_body: ReviewsRequest
     manageMoneyExchange(work_id, user_id)
 
 
-@app.patch("/users/{user_id}/withdraw/{work_id}")
-def withdraw_user_credit(user_id: str, work_id: str):
-    return withdrawUserCredit(user_id, work_id)
+@app.patch("/users/{user_id}/withdraw/{credit}")
+def withdraw_user_credit(user_id: str,credit:int):
+    return withdrawUserCredit(user_id,credit)
 
 
 @app.patch("/users/{user_id}/absent")

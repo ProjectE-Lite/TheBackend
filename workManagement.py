@@ -32,6 +32,11 @@ def return_items(item, name_header):
     return {name_header: item}
 
 
+def improved_return(item):
+    item["_id"] = str(item["_id"])
+    return item
+
+
 def insertPseudoWork(work, recruiter_id):
     work["recruiter_id"] = recruiter_id
     work_date = work["work_date"].split('-')
@@ -53,7 +58,7 @@ def insertPseudoWork(work, recruiter_id):
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(work["_id"])}})
     matchingFieldOfInterested(work["type_of_work"])
     
-    return return_items(work, "work")
+    return improved_return(work)
 
 
 def getWorkByWorkDate(work_date):
@@ -68,7 +73,7 @@ def getWorkByWorkID(work_id):
     item = WorksCollection.find_one({"_id": ObjectId(work_id)})
     if not item:
         raise HTTPException(status_code=400, detail="Work not found")
-    return return_items(item, "work")
+    return improved_return(item)
 
 
 def getAllWorkInUser(uid: str):
@@ -94,7 +99,7 @@ def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
         raise HTTPException(status_code=400, detail="User not found")
     sid = winfo["user_status"][uid]
     ans = UserStatusInWorkCollection.find_one({"_id": ObjectId(sid)})
-    return {"status": ans["user_status"], "work_detail": winfo}
+    return {"status": ans["user_status"], "work_detail": improved_return(winfo)}
 
 
 def getAllWorkInRecruiter(rid: str):
@@ -113,6 +118,7 @@ def getAllWorkInRecruiter(rid: str):
 
 
 def getUserNotification(uid: str):
+    ans = []
     uinfo = UsersCollection.find_one({"_id": ObjectId(uid)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
@@ -120,11 +126,14 @@ def getUserNotification(uid: str):
     if not noti:
         raise HTTPException(status_code=400, detail="No notifications")
     objnoti = [ObjectId(i) for i in noti]
-    ans = list(UsersNotificationCollection.find({"_id": {"$in": objnoti}}))
+    unotilist = UsersNotificationCollection.find({"_id": {"$in": objnoti}})
+    for i in unotilist:
+        ans.append(str(i["_id"]))
     return ans
 
 
 def getRecruiterNotification(rid: str):
+    ans = []
     rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
@@ -132,8 +141,20 @@ def getRecruiterNotification(rid: str):
     if not noti:
         raise HTTPException(status_code=400, detail="No notifications")
     objnoti = [ObjectId(i) for i in noti]
-    ans = list(RecruitersNotificationCollection.find({"_id": {"$in": objnoti}}))
+    rnotilist = RecruitersNotificationCollection.find({"_id": {"$in": objnoti}})
+    for i in rnotilist:
+        ans.append(str(i["_id"]))
     return ans
+
+
+def getUserNotiDetail(nid: str):
+    unoti = UsersNotificationCollection.find_one({"_id": ObjectId(nid)})
+    return improved_return(unoti)
+
+
+def getRecNotiDetail(nid: str):
+    rnoti = RecruitersNotificationCollection.find_one({"_id": ObjectId(nid)})
+    return improved_return(rnoti)
 
 
 def addUserToListOfCandidate(work_id, user_id):
@@ -209,10 +230,18 @@ def getUserDetail(user_id):
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
-    return uinfo
+    return improved_return(uinfo)
+
+
+def getRecruiterDetail(recruiter_id):
+    recinfo = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    if not recinfo:
+        raise HTTPException(status_code=400, detail="Recruiter not found")
+    return improved_return(recinfo)
 
 
 def getReviewByPoints(user_id, point):
+    ans = []
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
@@ -220,7 +249,9 @@ def getReviewByPoints(user_id, point):
         raise HTTPException(status_code=400, detail="Review not found")
     review = uinfo["feedback"][str(point)]
     objreview = [ObjectId(i) for i in review]
-    ans = list(ReviewsCollection.find({"_id": {"$in": objreview}}))
+    rlist = ReviewsCollection.find({"_id": {"$in": objreview}})
+    for i in rlist:
+        ans.append(str(i["_id"]))
     return ans
 
 
@@ -270,6 +301,10 @@ def AcceptButton(user_id, work_id):
     updateUserStatusWorkApp(user_status_id, "site work details")
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
+
+
+def updateDetailUser(user_id,user):
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": user})
 
 
 def updateDetailWork(work_id,work):
