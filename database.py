@@ -1,15 +1,13 @@
-import os
 from pymongo import MongoClient
-from dotenv import load_dotenv
+from decouple import config
 import cloudinary
 
 
-load_dotenv(".env")
-mongouser = os.getenv("MONGO_USERNAME")
-mongopass = os.getenv("MONGO_PASSWORD")
-cloudname = os.getenv("CLOUD_NAME")
-apikey = os.getenv("API_KEY")
-apisecret = os.getenv("API_SECRET")
+mongouser = config("MONGO_USERNAME")
+mongopass = config("MONGO_PASSWORD")
+cloudname = config("CLOUD_NAME")
+apikey = config("API_KEY")
+apisecret = config("API_SECRET")
 
 client = MongoClient(
     f"mongodb+srv://{mongouser}:{mongopass}@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority"

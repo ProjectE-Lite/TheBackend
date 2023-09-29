@@ -32,6 +32,7 @@ async def insert_pseudo_user(user: UsersRequest):
     uinfo = check_user(user.username, user.password)
     return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
 
+
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
     # notiFieldOfInteresterd()
@@ -187,6 +188,7 @@ def withdraw_user_credit(user_id: str,credit:int):
 @app.patch("/users/{user_id}/absent")
 async def penalized_user_credit(user_id: str):
     return penalizedUserCredit(user_id)
+
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
