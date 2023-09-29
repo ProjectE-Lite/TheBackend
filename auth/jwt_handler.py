@@ -3,8 +3,8 @@ import jwt
 from decouple import config
 
 
-JWT_SECRET = config("secret")
-JWT_ALGORITHM = config("algorithm")
+JWT_SECRET = config("AUTH_SECRET")
+JWT_ALGORITHM = config("AUTH_ALGORITHM")
 
 
 def signJWT(username: str):
