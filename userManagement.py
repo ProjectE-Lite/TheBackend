@@ -9,7 +9,8 @@ printer = pprint.PrettyPrinter()
 
 
 def insertPseudoUser(user):
-    UsersCollection.insert_one(user)
+    uinfo = UsersCollection.insert_one(user)
+    UsersCollection.update_one({"_id": uinfo.inserted_id}, {"$set": {"image": "http://res.cloudinary.com/dig1qtfkr/image/upload/v1696069288/default_profile.jpg"}})
 
 
 def check_user(uname: str, passwd: str):

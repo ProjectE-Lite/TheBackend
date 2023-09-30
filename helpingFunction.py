@@ -12,7 +12,7 @@ from pydantic import ValidationError
 
 models = {"recruiters": Recruiters, "users": Users, "works": Works, "reviews": Reviews,
           "recruitersReq": RecruitersRequest, "usersReq": UsersRequest, "worksReq": WorksRequest, "reviewsReq": ReviewsRequest,
-          "login": Login, "upUsers": UpdateUsers, "upWorks": UpdateWorks}
+          "login": Login, "usersUp": UpdateUsers, "worksUp": UpdateWorks}
 
 
 class DataChecker:

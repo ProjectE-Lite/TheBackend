@@ -53,9 +53,9 @@ def insertPseudoWork(work, recruiter_id):
 
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
-    work["recruiter_id"] = recruiter_id
-    WorksCollection.insert_one(work)
-    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(work["_id"])}})
+    work["image"] = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["image"]
+    winfo = WorksCollection.insert_one(work)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(winfo.inserted_id)}})
     matchingFieldOfInterested(work["type_of_work"])
     
     return improved_return(work)
@@ -303,8 +303,10 @@ def AcceptButton(user_id, work_id):
     EmailNotification(email, "Accepted", text)
 
 
-def updateDetailUser(user_id,user):
+def updateDetailUser(user_id,user,url):
     UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": user})
+    if url:
+        UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": {"image": url}})
 
 
 def updateDetailWork(work_id,work):
@@ -318,8 +320,7 @@ def updateDetailWork(work_id,work):
         return "can't edit, your credit is too low, need topup"
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
-    WorksCollection.update_one({'_id': ObjectId(work_id)},{'$set':work})
-    return 0
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$set": work})
 
 
 def getCandidateOfWork(uid: str):

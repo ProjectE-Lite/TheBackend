@@ -12,7 +12,8 @@ import cloudinary.uploader
 
 app = FastAPI()
 
-recruiters_checker = DataChecker("recruiters")
+RecruitersReq_checker = DataChecker("recruitersReq")
+UsersUp_checker = DataChecker("usersUp")
 
 # if any function need authentication, simply add "dependencies=[Depends(jwtBearer())]" in endpoint
 # Example: @app.get("/works/{work_id}") --> @app.get("/works/{work_id}", dependencies=[Depends(jwtBearer())])
@@ -23,12 +24,12 @@ async def gen12datenext():
 
 
 @app.post("/recruiters", tags=["Recruiters"])
-async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(recruiters_checker), file: UploadFile = File(...)):
+async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(RecruitersReq_checker), file: UploadFile = File(...)):
     result = cloudinary.uploader.upload(file.file)
     url = result.get("url")
     insertPseudoRecruiter(vars(recruiter),url)
     rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"]), "image": url}}
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
 
 
 @app.post("/users", tags=["Users"])
@@ -147,8 +148,12 @@ async def get_recruiter_noti_detail(noti_id: str):
 
 
 @app.patch("/users/{user_id}")
-async def update_user(user_id: str, user: UpdateUsers):
-    updateDetailUser(user_id,user.dict(exclude_unset = True))
+async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile | None = None):
+    url = None
+    if file:
+        result = cloudinary.uploader.upload(file.file)
+        url = result.get("url")
+    updateDetailUser(user_id,user.dict(exclude_unset = True),url)
     return "success, you have updated user info"
 
 
