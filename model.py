@@ -5,6 +5,7 @@ from typing import Optional
 class Recruiters(BaseModel):
     username: str
     password: str
+    image: str
     name: str
     address: str
     credit: int
@@ -17,6 +18,7 @@ class Recruiters(BaseModel):
 class Users(BaseModel):
     username: str
     password: str
+    image: str
     first_name: str
     last_name: str
     nick_name: str
@@ -38,6 +40,7 @@ class Users(BaseModel):
 
 class Works(BaseModel):
     recruiter_id: int
+    image: str
     name: str
     type_of_work: str
     number_requirement: int

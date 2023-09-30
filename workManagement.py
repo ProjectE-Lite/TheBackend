@@ -189,10 +189,10 @@ def initUserStatus(work_id, user_id):
         "work_appointment": None
     }
     
-    sid = UserStatusInWorkCollection.insert_one(user_status)
+    sinfo = UserStatusInWorkCollection.insert_one(user_status)
     temp = str(user_id)
     
-    target_dict = {"$set": {f"user_status.{temp}": str(sid["_id"])}}
+    target_dict = {"$set": {f"user_status.{temp}": str(sinfo.inserted_id)}}
     WorksCollection.update_one({"_id": ObjectId(work_id)}, target_dict)
    
 

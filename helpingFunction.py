@@ -3,7 +3,31 @@ import datetime
 from datetime import datetime, timedelta
 import pprint
 from database import *
+from model import *
+from fastapi import Form, HTTPException, status
+from fastapi.encoders import jsonable_encoder
+from pydantic import ValidationError
 
+
+
+models = {"recruiters": Recruiters, "users": Users, "works": Works, "reviews": Reviews,
+          "recruitersReq": RecruitersRequest, "usersReq": UsersRequest, "worksReq": WorksRequest, "reviewsReq": ReviewsRequest,
+          "login": Login, "upUsers": UpdateUsers, "upWorks": UpdateWorks}
+
+
+class DataChecker:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __call__(self, data: str = Form(...)):
+        try:
+            model = models[self.name].parse_raw(data)
+        except ValidationError as e:
+            raise HTTPException(
+                detail=jsonable_encoder(e.errors()),
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        return model
 
 
 def return_items(item, name_header):
@@ -94,9 +118,9 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
                            "date": datenow,
                            "credit": cost}
     
-    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
-    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
-    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
+    minfo = MoneyExchangeCollection.insert_one(money_exchange_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(minfo.inserted_id)}})
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(minfo.inserted_id)}})
 
 
 def manageMoneyExchange(work_id, user_id):
@@ -134,10 +158,10 @@ def manageReview(user_id, work_id, review_body):
                   "score": score,
                   "text": text}
     
-    rid = ReviewsCollection.insert_one(review_doc)
+    rinfo = ReviewsCollection.insert_one(review_doc)
 
     all_updates = {
-        "$addToSet": {f"feedback.{score}": str(rid["_id"])}
+        "$addToSet": {f"feedback.{score}": str(rinfo.inserted_id)}
     }
     UsersCollection.update_one({"_id": ObjectId(user_id)}, all_updates)
 

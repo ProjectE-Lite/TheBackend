@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile
 from pydantic import BaseModel
 from database import *
 from model import *
@@ -8,8 +8,11 @@ from workManagement import *
 from helpingFunction import *
 from auth.jwt_handler import *
 from auth.jwt_bearer import *
+import cloudinary.uploader
 
 app = FastAPI()
+
+recruiters_checker = DataChecker("recruiters")
 
 # if any function need authentication, simply add "dependencies=[Depends(jwtBearer())]" in endpoint
 # Example: @app.get("/works/{work_id}") --> @app.get("/works/{work_id}", dependencies=[Depends(jwtBearer())])
@@ -20,10 +23,12 @@ async def gen12datenext():
 
 
 @app.post("/recruiters", tags=["Recruiters"])
-async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
-    insertPseudoRecruiter(vars(recruiter))
+async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(recruiters_checker), file: UploadFile = File(...)):
+    result = cloudinary.uploader.upload(file.file)
+    url = result.get("url")
+    insertPseudoRecruiter(vars(recruiter),url)
     rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"]), "image": url}}
 
 
 @app.post("/users", tags=["Users"])
