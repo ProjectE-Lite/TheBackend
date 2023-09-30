@@ -27,7 +27,8 @@ async def gen12datenext():
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(RecruitersReq_checker), file: UploadFile = File(...)):
     result = cloudinary.uploader.upload(file.file)
     url = result.get("url")
-    insertPseudoRecruiter(vars(recruiter),url)
+    https_url = url[:4] + 's' + url[4:]
+    insertPseudoRecruiter(vars(recruiter),https_url)
     rinfo = check_recruiter(recruiter.username, recruiter.password)
     return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
 
@@ -149,11 +150,12 @@ async def get_recruiter_noti_detail(noti_id: str):
 
 @app.patch("/users/{user_id}")
 async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile | None = None):
-    url = None
+    https_url = None
     if file:
         result = cloudinary.uploader.upload(file.file)
         url = result.get("url")
-    updateDetailUser(user_id,user.dict(exclude_unset = True),url)
+        https_url = url[:4] + 's' + url[4:]
+    updateDetailUser(user_id,user.dict(exclude_unset = True),https_url)
     return "success, you have updated user info"
 
 
