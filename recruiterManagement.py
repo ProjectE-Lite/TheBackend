@@ -5,9 +5,9 @@ from datetime import datetime
 from helpingFunction import *
 
 
-def insertPseudoRecruiter(recruiter, url):
+def insertPseudoRecruiter(recruiter):
     rinfo = RecruitersCollection.insert_one(recruiter)
-    RecruitersCollection.update_one({"_id": rinfo.inserted_id}, {"$set": {"image": url}})
+    return rinfo.inserted_id
 
 
 def check_recruiter(uname: str, passwd: str):

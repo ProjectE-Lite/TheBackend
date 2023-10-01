@@ -25,12 +25,12 @@ async def gen12datenext():
 
 @app.post("/recruiters", tags=["Recruiters"])
 async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(RecruitersReq_checker), file: UploadFile = File(...)):
-    result = cloudinary.uploader.upload(file.file)
+    rid = insertPseudoRecruiter(vars(recruiter))
+    result = cloudinary.uploader.upload(file.file, public_id = str(rid))
     url = result.get("url")
     https_url = url[:4] + 's' + url[4:]
-    insertPseudoRecruiter(vars(recruiter),https_url)
-    rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
+    RecruitersCollection.update_one({"_id": rid}, {"$set": {"image": https_url}})
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rid)}}
 
 
 @app.post("/users", tags=["Users"])
@@ -152,7 +152,7 @@ async def get_recruiter_noti_detail(noti_id: str):
 async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile | None = None):
     https_url = None
     if file:
-        result = cloudinary.uploader.upload(file.file)
+        result = cloudinary.uploader.upload(file.file, public_id = user_id)
         url = result.get("url")
         https_url = url[:4] + 's' + url[4:]
     updateDetailUser(user_id,user.dict(exclude_unset = True),https_url)
