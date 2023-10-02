@@ -149,7 +149,7 @@ async def get_recruiter_noti_detail(noti_id: str):
 
 
 @app.patch("/users/{user_id}")
-async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile | None = None):
+async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile or None = None):
     https_url = None
     if file:
         result = cloudinary.uploader.upload(file.file, public_id = user_id)
