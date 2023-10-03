@@ -56,7 +56,7 @@ def insertPseudoWork(work, recruiter_id):
     work["image"] = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["image"]
     winfo = WorksCollection.insert_one(work)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(winfo.inserted_id)}})
-    matchingFieldOfInterested(work["type_of_work"])
+    notiFieldOfInterestToUser(work)
     
     return improved_return(work)
 
@@ -354,3 +354,19 @@ def getRecWorkFromListByDate(rinfo,date):
         if work['work_date'] == date:
             listbydate.append(workid)
    return listbydate
+
+   
+def notiFieldOfInterestToUser(work):
+   users = UsersCollection.find()
+   for user in users:
+        try:
+            if user['field_of_interested'][work['type_of_work']]:
+                text = work["name"] + '(งานแนะนำ) : วันที่ '+ work["work_date"]
+                recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
+                rc_id = str(recruiter['_id'])         
+                x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': work["work_date"], 'text': text })
+                UsersCollection.update_one({"_id": ObjectId(user["_id"])},{'$addToSet': {'notification':str(x['_id'])}})
+        except KeyError:
+            print(f"{work['type_of_work']} is unknown.")
+            #except for user who don't have FieldOfInterest
+   return 0
