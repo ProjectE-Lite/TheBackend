@@ -113,7 +113,7 @@ def getAllWorkInRecruiter(rid: str):
     objwork = [ObjectId(i) for i in work]
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
-        x = getRecWorkFromListByDate(rinfo,i["work_date"])
+        x = getRecWorkFromListByDate(rid,i["work_date"])
         ans[i["work_date"]] = x
     ordered_ans = sorted(ans.items(), key = lambda x:datetime.strptime(x[0], '%Y-%m-%d'))
 
@@ -346,8 +346,9 @@ def deleteWorkAndListwork(work_id):
    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
    return 0
 
-def getRecWorkFromListByDate(rinfo,date):
-   listwork = rinfo["list_of_work"]
+
+def getRecWorkFromListByDate(recruiter_id,date):
+   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
    listbydate = []
    for workid in listwork:
         work = WorksCollection.find_one({"_id": ObjectId(workid)})
