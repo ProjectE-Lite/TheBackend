@@ -103,7 +103,7 @@ def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
 
 
 def getAllWorkInRecruiter(rid: str):
-    ans = []
+    ans = {}
     rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
@@ -113,8 +113,11 @@ def getAllWorkInRecruiter(rid: str):
     objwork = [ObjectId(i) for i in work]
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
-        ans.append(str(i["_id"]))
-    return {"work_list": ans}
+        x = getRecWorkFromListByDate(rinfo,i["work_date"])
+        ans[i["work_date"]] = x
+    ordered_ans = sorted(ans.items(), key = lambda x:datetime.strptime(x[0], '%Y-%m-%d'))
+
+    return convert(ordered_ans)
 
 
 def getUserNotification(uid: str):
@@ -343,8 +346,8 @@ def deleteWorkAndListwork(work_id):
    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
    return 0
 
-def getRecWorkFromListByDate(recruiter_id,date):
-   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
+def getRecWorkFromListByDate(rinfo,date):
+   listwork = rinfo["list_of_work"]
    listbydate = []
    for workid in listwork:
         work = WorksCollection.find_one({"_id": ObjectId(workid)})
