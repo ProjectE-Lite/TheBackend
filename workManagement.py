@@ -56,7 +56,7 @@ def insertPseudoWork(work, recruiter_id):
     work["image"] = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["image"]
     winfo = WorksCollection.insert_one(work)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(winfo.inserted_id)}})
-    matchingFieldOfInterested(work["type_of_work"])
+    notiFieldOfInterestToUser(work)
     
     return improved_return(work)
 
@@ -103,7 +103,7 @@ def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
 
 
 def getAllWorkInRecruiter(rid: str):
-    ans = []
+    ans = {}
     rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
@@ -113,8 +113,11 @@ def getAllWorkInRecruiter(rid: str):
     objwork = [ObjectId(i) for i in work]
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
-        ans.append(str(i["_id"]))
-    return {"work_list": ans}
+        x = getRecWorkFromListByDate(rinfo,i["work_date"])
+        ans[i["work_date"]] = x
+    ordered_ans = sorted(ans.items(), key = lambda x:datetime.strptime(x[0], '%Y-%m-%d'))
+
+    return convert(ordered_ans)
 
 
 def getUserNotification(uid: str):
@@ -343,11 +346,27 @@ def deleteWorkAndListwork(work_id):
    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
    return 0
 
-def getRecWorkFromListByDate(recruiter_id,date):
-   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
+def getRecWorkFromListByDate(rinfo,date):
+   listwork = rinfo["list_of_work"]
    listbydate = []
    for workid in listwork:
         work = WorksCollection.find_one({"_id": ObjectId(workid)})
         if work['work_date'] == date:
             listbydate.append(workid)
    return listbydate
+
+   
+def notiFieldOfInterestToUser(work):
+   users = UsersCollection.find()
+   for user in users:
+        try:
+            if user['field_of_interested'][work['type_of_work']]:
+                text = work["name"] + '(งานแนะนำ) : วันที่ '+ work["work_date"]
+                recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
+                rc_id = str(recruiter['_id'])         
+                x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': work["work_date"], 'text': text })
+                UsersCollection.update_one({"_id": ObjectId(user["_id"])},{'$addToSet': {'notification':str(x['_id'])}})
+        except KeyError:
+            print(f"{work['type_of_work']} is unknown.")
+            #except for user who don't have FieldOfInterest
+   return 0
