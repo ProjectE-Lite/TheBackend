@@ -174,3 +174,9 @@ def manageReview(user_id, work_id, review_body):
     }
     UsersCollection.update_one({"_id": ObjectId(user_id)}, all_updates)
 
+
+def convert(lst):
+   res_dict = {}
+   for i in range(len(lst)):
+       res_dict[lst[i][0]] = lst[i][1]
+   return res_dict
