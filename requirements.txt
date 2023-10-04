@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 pymongo
-pydantic
+pydantic == 1.*
 pyjwt
 python-decouple
 cloudinary
