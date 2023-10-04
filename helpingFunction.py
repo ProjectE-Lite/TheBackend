@@ -142,6 +142,15 @@ def manageMoneyExchange(work_id, user_id):
     recruiter_name = recruiterdoc["name"]
     work_name = workdoc["name"]
 
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
+    len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
+    if len_list_of_worker == 0:
+        #returnMoneyFromPotToRecruiter
+        money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
+        RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+       
+        
+
     subject = "brooo you have got a moneyyyy"
     body = f"{recruiter_name} has paid you {cost} for {work_name}"
     EmailNotification(userdoc["email"], subject, body)
