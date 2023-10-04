@@ -172,8 +172,6 @@ async def apply_button(user_id: str, work_id: str):
     initUserStatus(work_id, user_id)
     # notiUserAppToRecruiter()
     
-    pass
-
 
 @app.patch("/users/{user_id}/accept/{work_id}")
 async def accept_button(user_id: str, work_id: str):
@@ -197,12 +195,19 @@ def withdraw_user_credit(user_id: str,credit:int):
     return withdrawUserCredit(user_id,credit)
 
 
-@app.patch("/users/{user_id}/absent")
-async def penalized_user_credit(user_id: str):
-    return penalizedUserCredit(user_id)
+@app.patch("/users/{user_id}/absent/{work_id}")
+async def penalized_user_credit(user_id: str, work_id: str):
+    return penalizedUserCredit(user_id, work_id)
+
+
+@app.patch("/recruiters/{recruiter_id}/topup/{credit}")
+def topup_recruiter_credit(recruiter_id: str, credit: int):
+    return topupRecruiterCredit(recruiter_id, credit)
+
 
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
    deleteWorkAndListwork(work_id)
    return "success, you have deleted work"
+

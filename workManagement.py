@@ -266,9 +266,20 @@ def getListOfWorker(work_id):
     return worker
 
 
-def penalizedUserCredit(user_id):
+def penalizedUserCredit(user_id, work_id):
     penalty = 500
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
+    len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
+    print(len_list_of_worker)
+    if len_list_of_worker == 0:
+        #returnMoneyFromPotToRecruiter
+        money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
+        RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+        
+        
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     UsersCollection.update_one({"_id": ObjectId(user_id)},
@@ -282,8 +293,8 @@ def AppointmentButton(user_id, work_id, date, time):
     text = "You have an appointment of interview in " + date + time + " from " + recruiter_name
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatusInterview(user_status_id, date+time)
-    email = "suphanat.wi@ku.th"
-    #email = UsersCollection.find_one({"user_id": user_id})["email"]
+    #email = "suphanat.wi@ku.th"
+    email = UsersCollection.find_one({"_id": ObjectId(user_id)})["email"]
     EmailNotification(email, "Appointment", text)
     #notiDatabase
 
@@ -356,6 +367,10 @@ def getRecWorkFromListByDate(recruiter_id,date):
             listbydate.append(workid)
    return listbydate
 
+
+
+#delete particular element in array
+#RecruitersCollection.update_one({"_id": ObjectId("6519dbdd761718fdedbe45b1")}, {"$pull": {"list_of_work": "item2" }})
    
 def notiFieldOfInterestToUser(work):
    users = UsersCollection.find()
