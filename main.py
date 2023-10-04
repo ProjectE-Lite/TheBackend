@@ -148,6 +148,16 @@ async def get_recruiter_noti_detail(noti_id: str):
     return getRecNotiDetail(noti_id)
 
 
+@app.get("/users/status/{status_id}")
+async def get_user_status(status_id: str):
+    return getUserStatus(status_id)
+
+
+@app.get("/money_exchange/{exchange_id}")
+async def get_money_exchange(exchange_id: str):
+    return getMoneyExchange(exchange_id)
+
+
 @app.patch("/users/{user_id}")
 async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile or None = None):
     https_url = None
@@ -205,9 +215,7 @@ def topup_recruiter_credit(recruiter_id: str, credit: int):
     return topupRecruiterCredit(recruiter_id, credit)
 
 
-
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
    deleteWorkAndListwork(work_id)
    return "success, you have deleted work"
-

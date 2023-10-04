@@ -349,6 +349,7 @@ def getCandidateOfWork(uid: str):
         list.append(tmp)
     return list
 
+
 def deleteWorkAndListwork(work_id):
    recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
    WorksCollection.delete_one({"_id": ObjectId(work_id)})
@@ -367,6 +368,15 @@ def getRecWorkFromListByDate(recruiter_id,date):
             listbydate.append(workid)
    return listbydate
 
+
+def getUserStatus(status_id):
+    sinfo = UserStatusInWorkCollection.find_one({"_id": ObjectId(status_id)})
+    return improved_return(sinfo)
+
+
+def getMoneyExchange(exchange_id):
+    minfo = MoneyExchangeCollection.find_one({"_id": ObjectId(exchange_id)})
+    return improved_return(minfo)
 
 
 #delete particular element in array
