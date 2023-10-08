@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from decouple import config
+import certifi
 import cloudinary
 
 
@@ -10,7 +11,7 @@ apikey = config("API_KEY")
 apisecret = config("API_SECRET")
 
 client = MongoClient(
-    f"mongodb+srv://{mongouser}:{mongopass}@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority"
+    f"mongodb+srv://{mongouser}:{mongopass}@softenproject-database.ochwdfb.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=certifi.where()
 )
 
 cloudinary.config(
