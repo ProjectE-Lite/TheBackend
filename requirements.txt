@@ -6,3 +6,4 @@ pyjwt
 python-decouple
 cloudinary
 python-multipart
+certifi

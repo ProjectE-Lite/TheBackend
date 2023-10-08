@@ -381,7 +381,11 @@ def getMoneyExchange(exchange_id):
 
 def getReviewDetail(review_id):
     revinfo = ReviewsCollection.find_one({"_id": ObjectId(review_id)})
-    return improved_return(revinfo)
+    rinfo = RecruitersCollection.find_one({"_id": ObjectId(revinfo["recruiter_id"])})
+    ans = improved_return(revinfo)
+    ans["recruiter_name"] = rinfo["name"]
+    ans["recruiter_image"] = rinfo["image"]
+    return ans
 
 
 #delete particular element in array
