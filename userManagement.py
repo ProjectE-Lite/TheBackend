@@ -33,14 +33,14 @@ def matchingFieldOfInterested(type_of_work):
 
 
 def getUserListOfMoneyExchange(uid: str):
-    moneylist=MoneyExchangeCollection.find_one({"_id": ObjectId(uid)})
-    values = moneylist["total_credit"]
-    values = str(values)
-    list_of_money=moneylist["list_of_money_exchange"]
-    dict={}
-    list=[list_of_money]
-    dict[values]=list
-    return dict
+    ans = []
+    mid = UsersCollection.find_one({"_id": ObjectId(uid)})["list_of_money_exchange"]
+    objmid = [ObjectId(i) for i in mid]
+    mlist = MoneyExchangeCollection.find({"_id": {"$in": objmid}})
+    for i in mlist:
+        i["_id"] = str(i["_id"])
+        ans.append(i)
+    return ans
 
 
 def withdrawUserCredit(uid: str,credit: int):    
