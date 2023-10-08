@@ -379,6 +379,11 @@ def getMoneyExchange(exchange_id):
     return improved_return(minfo)
 
 
+def getReviewDetail(review_id):
+    revinfo = ReviewsCollection.find_one({"_id": ObjectId(review_id)})
+    return improved_return(revinfo)
+
+
 #delete particular element in array
 #RecruitersCollection.update_one({"_id": ObjectId("6519dbdd761718fdedbe45b1")}, {"$pull": {"list_of_work": "item2" }})
    

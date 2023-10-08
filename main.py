@@ -158,6 +158,11 @@ async def get_money_exchange(exchange_id: str):
     return getMoneyExchange(exchange_id)
 
 
+@app.get("/review/{review_id}")
+async def get_review_detail(review_id: str):
+    return getReviewDetail(review_id)
+
+
 @app.patch("/users/{user_id}")
 async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile or None = None):
     https_url = None
