@@ -99,7 +99,6 @@ class UsersRequest(BaseModel):
     feedback: dict
 
 class WorksRequest(BaseModel):
-    name: str
     type_of_work: str
     number_requirement: int
     gender_requirement: str     #["ผู้ชาย","ผู้หญิง","ไม่ระบุ"]
@@ -137,7 +136,6 @@ class UpdateUsers(BaseModel):
     address: Optional[str]
 
 class UpdateWorks(BaseModel):
-    name: Optional[str] 
     type_of_work: Optional[str]
     number_requirement: Optional[int]
     gender_requirement: Optional[str]
