@@ -55,6 +55,7 @@ def insertPseudoWork(work, recruiter_id):
 
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
+    work["total"] = work["number_requirement"]
     work["image"] = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["image"]
     winfo = WorksCollection.insert_one(work)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(winfo.inserted_id)}})
