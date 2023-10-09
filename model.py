@@ -44,6 +44,8 @@ class Works(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
+    gender_requirement: str
+    minimum_age: int
     work_description: dict
     hourly_income: int
     pot: int
@@ -100,14 +102,16 @@ class WorksRequest(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    work_description: dict
+    gender_requirement: str     #["male,female,none"]
+    minimum_age: int
+    work_description: dict      #{"detail": str, "qualification": str}
     hourly_income: int
     list_of_candidate: list
     list_of_worker: list
-    end_registeration: str
-    work_date: str
-    start_time: str
-    end_time: str
+    end_registeration: str      #YYYY-MM-DD
+    work_date: str              #YYYY-MM-DD
+    start_time: str             #TT:TT
+    end_time: str               #TT:TT
     user_status: dict
 
 class ReviewsRequest(BaseModel):
@@ -136,6 +140,8 @@ class UpdateWorks(BaseModel):
     name: Optional[str] 
     type_of_work: Optional[str]
     number_requirement: Optional[int]
+    gender_requirement: Optional[str]
+    minimum_age: Optional[int]
     work_description: Optional[dict]
     hourly_income: Optional[int]
     end_registeration: Optional[str]
