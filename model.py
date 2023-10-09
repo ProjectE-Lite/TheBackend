@@ -102,7 +102,7 @@ class WorksRequest(BaseModel):
     name: str
     type_of_work: str
     number_requirement: int
-    gender_requirement: str     #["male,female,none"]
+    gender_requirement: str     #["ผู้ชาย","ผู้หญิง","ไม่ระบุ"]
     minimum_age: int
     work_description: dict      #{"detail": str, "qualification": str}
     hourly_income: int
