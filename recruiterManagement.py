@@ -34,8 +34,14 @@ def addHaveWorkedWith(work_id, user_id):
     }
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, all_updates)
 
+
 def topupRecruiterCredit(recruiter_id, credit):
+    datenow = datetime.now()
+    money_exchange_body = {"from": "Bank",
+                           "to": recruiter_id,
+                           "date": datenow,
+                           "credit": credit}
+    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": credit}})
-    return f"added {credit} credit to {recruiter_id}" 
-
-
+    return {"detail": f"Added {credit} credit to {recruiter_id}"}

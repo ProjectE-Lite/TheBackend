@@ -44,22 +44,13 @@ def getUserListOfMoneyExchange(uid: str):
 
 
 def withdrawUserCredit(uid: str,credit: int):    
-    tmp = str(datetime.now())[:-3]
-    charinsert="+00:00"
-    mod_tmp=tmp+charinsert
-    charfind=" "
-    charinsert="T"
-    indexfind=tmp.find(charfind)
-    timestr=mod_tmp[:indexfind]+charinsert+mod_tmp[indexfind+1:]
-    txt={
-        "from": uid,
-        "to": "Bank",
-        "date":timestr,
-        "credit": credit,
-                }
-    MoneyExchangeCollection.insert_one(txt)
-    findmoneyex=MoneyExchangeCollection.find_one(txt)
-    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(findmoneyex["_id"])}})
+    datenow = datetime.now()
+    money_exchange_body = {"from": uid,
+                           "to": "Bank",
+                           "date": datenow,
+                           "credit": credit}
+    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
     
     userlist=UsersCollection.find_one({"_id":ObjectId(uid)})
     values = userlist["credit"]
@@ -70,4 +61,4 @@ def withdrawUserCredit(uid: str,credit: int):
                 }
     UsersCollection.update_one({"_id":ObjectId(uid)},txt_update)
     
-    return {"details": f"Tranfer to Bank {values}"}
+    return {"details": f"Tranferred {credit} credit to Bank", "account_credit": values}
