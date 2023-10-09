@@ -38,6 +38,8 @@ def improved_return(item):
 
 
 def insertPseudoWork(work, recruiter_id):
+    rec = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    work["name"] = rec["name"]
     work["recruiter_id"] = recruiter_id
     work_date = work["work_date"].split('-')
     end_registeration = datetime(int(work_date[0]), int(work_date[1]), int(work_date[2]), 23, 59, 59)
@@ -53,6 +55,7 @@ def insertPseudoWork(work, recruiter_id):
 
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
+    work["total"] = work["number_requirement"]
     work["image"] = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["image"]
     winfo = WorksCollection.insert_one(work)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_work": str(winfo.inserted_id)}})
