@@ -354,22 +354,25 @@ def getCandidateOfWork(uid: str):
 
 
 def deleteWorkAndListwork(work_id):
-   recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
-   WorksCollection.delete_one({"_id": ObjectId(work_id)})
-   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
-   listwork.remove(work_id)
-   RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
-   return 0
+    recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    WorksCollection.delete_one({"_id": ObjectId(work_id)})
+    listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
+    listwork.remove(work_id)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
+    return 0
 
 
 def getRecWorkFromListByDate(recruiter_id,date):
-   listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
-   listbydate = []
-   for workid in listwork:
-        work = WorksCollection.find_one({"_id": ObjectId(workid)})
-        if work['work_date'] == date:
-            listbydate.append(workid)
-   return listbydate
+    ans = []
+    rinfo = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    work = rinfo["list_of_work"]
+    if not work:
+        raise HTTPException(status_code=400, detail="No jobs")
+    objwork = [ObjectId(i) for i in work]
+    work_list = WorksCollection.find({"_id": {"$in": objwork}, "work_date": date})
+    for i in work_list:
+        ans.append(str(i["_id"]))
+    return {"work_list": ans}
 
 
 def getUserStatus(status_id):
