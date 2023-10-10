@@ -372,7 +372,7 @@ def getRecWorkFromListByDate(recruiter_id,date):
     work_list = WorksCollection.find({"_id": {"$in": objwork}, "work_date": date})
     for i in work_list:
         ans.append(str(i["_id"]))
-    return {"work_list": ans}
+    return ans
 
 
 def getUserStatus(status_id):
