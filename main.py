@@ -191,6 +191,7 @@ async def apply_button(user_id: str, work_id: str):
 @app.patch("/users/{user_id}/accept/{work_id}")
 async def accept_button(user_id: str, work_id: str):
     AcceptButton(user_id, work_id)
+    return f"you accept user: {user_id}"
 
 
 @app.patch("/users/{user_id}/appoint/{work_id}/{date}/{time}")

@@ -118,8 +118,7 @@ def getAllWorkInRecruiter(rid: str):
     for i in work_list:
         x = getRecWorkFromListByDate(rid,i["work_date"])
         ans[i["work_date"]] = x
-    ordered_ans = sorted(ans.items(), key = lambda x:datetime.strptime(x[0], '%Y-%m-%d'))
-
+    ordered_ans = sorted(ans.items(), key = lambda x:datetime.strptime(x[0], '%Y-%m-%d'), reverse=True )
     return convert(ordered_ans)
 
 
@@ -303,10 +302,14 @@ def AppointmentButton(user_id, work_id, date, time):
 
 
 def AcceptButton(user_id, work_id):
+    candidate = WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_candidate"]
+    candidate.remove(user_id)
+
     all_updates = {
         "$inc": {"number_requirement": -1},
-        "$addToSet": {"list_of_worker": user_id}
-    }
+        "$addToSet": {"list_of_worker": user_id},
+        "$set": {"list_of_candidate":candidate}
+        }
     WorksCollection.update_one({"_id": ObjectId(work_id)}, all_updates)
 
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
@@ -337,6 +340,7 @@ def updateDetailWork(work_id,work):
         return "can't edit, your credit is too low, need topup"
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
+    work["total_worker"] = work["number_requirement"]
     WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$set": work})
 
 
