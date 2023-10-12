@@ -134,6 +134,7 @@ def getUserNotification(uid: str):
     unotilist = UsersNotificationCollection.find({"_id": {"$in": objnoti}})
     for i in unotilist:
         ans.append(str(i["_id"]))
+    ans.reverse()
     return ans
 
 
@@ -149,6 +150,7 @@ def getRecruiterNotification(rid: str):
     rnotilist = RecruitersNotificationCollection.find({"_id": {"$in": objnoti}})
     for i in rnotilist:
         ans.append(str(i["_id"]))
+    ans.reverse()
     return ans
 
 
