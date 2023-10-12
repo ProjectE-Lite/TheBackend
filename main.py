@@ -138,6 +138,11 @@ async def get_user_list_of_money_exchange(user_id: str):
     return getUserListOfMoneyExchange(user_id)
 
 
+@app.get("/recruiters/{recruiter_id}/money_exchange")
+async def get_recruiter_list_of_money_exchange(recruiter_id: str):
+    return getRecListOfMoneyExchange(recruiter_id)
+
+
 @app.get("/users/noti/{noti_id}")
 async def get_user_noti_detail(noti_id: str):
     return getUserNotiDetail(noti_id)

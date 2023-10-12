@@ -23,6 +23,17 @@ def check_recruiter(uname: str, passwd: str):
 
 
 
+def getRecListOfMoneyExchange(rid: str):
+    ans = []
+    mid = RecruitersCollection.find_one({"_id": ObjectId(rid)})["list_of_money_exchange"]
+    objmid = [ObjectId(i) for i in mid]
+    mlist = MoneyExchangeCollection.find({"_id": {"$in": objmid}})
+    for i in mlist:
+        ans.append(str(i["_id"]))
+    ans.reverse()
+    return ans
+
+
 def addHaveWorkedWith(work_id, user_id):
     work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})
     work_type = work_cursor["type_of_work"]

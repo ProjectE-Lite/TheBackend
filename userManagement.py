@@ -38,8 +38,8 @@ def getUserListOfMoneyExchange(uid: str):
     objmid = [ObjectId(i) for i in mid]
     mlist = MoneyExchangeCollection.find({"_id": {"$in": objmid}})
     for i in mlist:
-        i["_id"] = str(i["_id"])
-        ans.append(i)
+        ans.append(str(i["_id"]))
+    ans.reverse()
     return ans
 
 
