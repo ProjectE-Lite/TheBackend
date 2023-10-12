@@ -76,6 +76,7 @@ def getWorkByWorkID(work_id):
     item = WorksCollection.find_one({"_id": ObjectId(work_id)})
     if not item:
         raise HTTPException(status_code=400, detail="Work not found")
+    item["user_status"] = getUserStatusInWork(work_id)
     return improved_return(item)
 
 
@@ -234,11 +235,12 @@ def getWorkStatusAndListOfUser(work_id):
 
 
 def getUserStatusInWork(work_id):
+    ans = {}
     winfo = WorksCollection.find_one({"_id": ObjectId(work_id)})
     ustatus = winfo["user_status"]
-    if not ustatus:
-        raise HTTPException(status_code=400, detail="There is no user status yet")
-    return ustatus
+    for x,y in ustatus.items():
+        ans[x] = getUserStatusDetail(y)
+    return ans
 
 
 def getUserDetail(user_id):
