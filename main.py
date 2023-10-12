@@ -89,6 +89,11 @@ async def get_list_of_worker(work_id: str):
     return getListOfWorker(work_id)
 
 
+@app.get("/works/{work_id}/user_status")
+async def get_user_status_in_work(work_id: str):
+    return getUserStatusInWork(work_id)
+
+
 @app.get("/users/{user_id}")
 async def get_user_detail(user_id: str):
     return getUserDetail(user_id)
@@ -154,8 +159,8 @@ async def get_recruiter_noti_detail(noti_id: str):
 
 
 @app.get("/users/status/{status_id}")
-async def get_user_status(status_id: str):
-    return getUserStatus(status_id)
+async def get_user_status_detail(status_id: str):
+    return getUserStatusDetail(status_id)
 
 
 @app.get("/money_exchange/{exchange_id}")

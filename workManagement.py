@@ -233,6 +233,14 @@ def getWorkStatusAndListOfUser(work_id):
         return {status: list_of_worker}
 
 
+def getUserStatusInWork(work_id):
+    winfo = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    ustatus = winfo["user_status"]
+    if not ustatus:
+        raise HTTPException(status_code=400, detail="There is no user status yet")
+    return ustatus
+
+
 def getUserDetail(user_id):
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     if not uinfo:
@@ -381,7 +389,7 @@ def getRecWorkFromListByDate(recruiter_id,date):
     return ans
 
 
-def getUserStatus(status_id):
+def getUserStatusDetail(status_id):
     sinfo = UserStatusInWorkCollection.find_one({"_id": ObjectId(status_id)})
     return improved_return(sinfo)
 
