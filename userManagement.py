@@ -48,7 +48,7 @@ def withdrawUserCredit(uid: str,credit: int):
     money_exchange_body = {"from": uid,
                            "to": "Bank",
                            "date": datenow,
-                           "credit": credit}
+                           "credit": -credit}
     mid = MoneyExchangeCollection.insert_one(money_exchange_body)
     UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
     
