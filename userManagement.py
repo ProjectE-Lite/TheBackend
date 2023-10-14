@@ -62,3 +62,12 @@ def withdrawUserCredit(uid: str,credit: int):
     UsersCollection.update_one({"_id":ObjectId(uid)},txt_update)
     
     return {"details": f"Tranferred {credit} credit to Bank", "account_credit": values}
+
+
+
+def updateFieldOfInterested(uid: str, fieldint_body):
+
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$set": {"field_of_interested": fieldint_body}})
+    return f"updated field of interested to {uid}"
+
+

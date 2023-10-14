@@ -147,3 +147,18 @@ class UpdateWorks(BaseModel):
     start_time: Optional[str]
     end_time: Optional[str]
     user_status: Optional[dict]
+
+
+
+
+class UpdateFieldOfInterested(BaseModel):
+    type1: Optional[bool]
+    type2: Optional[bool]
+    type3: Optional[bool]
+    type4: Optional[bool]
+    type5: Optional[bool]
+    type6: Optional[bool]
+    type7: Optional[bool]
+
+    
+    

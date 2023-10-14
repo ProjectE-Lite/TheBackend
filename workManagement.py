@@ -422,8 +422,13 @@ def notiFieldOfInterestToUser(work):
                 recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
                 rc_id = str(recruiter['_id'])         
                 x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': work["work_date"], 'text': text })
-                UsersCollection.update_one({"_id": ObjectId(user["_id"])},{'$addToSet': {'notification':str(x['_id'])}})
+                
+                EmailNotification(user["email"], "you may interest this job", text)
+                print(user["_id"])
+                UsersCollection.update_one({"_id": ObjectId(user["_id"])}, {"$addToSet": {"notification": str(x.inserted_id)}})
+                
         except KeyError:
             print(f"{work['type_of_work']} is unknown.")
             #except for user who don't have FieldOfInterest
    return 0
+
