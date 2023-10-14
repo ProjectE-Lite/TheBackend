@@ -231,6 +231,10 @@ def topup_recruiter_credit(recruiter_id: str, credit: int):
     return topupRecruiterCredit(recruiter_id, credit)
 
 
+@app.patch("/users/{user_id}/update_field_of_interested")
+def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
+    return updateFieldOfInterested(user_id, vars(fieldint_body))
+
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
    deleteWorkAndListwork(work_id)
