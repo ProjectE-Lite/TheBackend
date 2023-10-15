@@ -62,5 +62,5 @@ def checkHaveWorkedWith(recruiter_id: str, user_id: str):
     for k, v in temp.items():
         for user in v.keys():
             if user_id == user:
-                return f"{user_id} have worked with {recruiter_id} ({k})"
-    return f"{user_id} haven't worked with {recruiter_id}"
+                return f"{user_id} has worked with {recruiter_id} ({k})"
+    return f"{user_id} hasn't worked with {recruiter_id}"
