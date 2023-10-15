@@ -62,5 +62,10 @@ def checkHaveWorkedWith(recruiter_id: str, user_id: str):
     for k, v in temp.items():
         for user in v.keys():
             if user_id == user:
-                return f"{user_id} has worked with {recruiter_id} ({k})"
-    return f"{user_id} hasn't worked with {recruiter_id}"
+                user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
+                recruiter_name = UsersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+                return f"{user_name} เคยทำงานกับ {recruiter_name} ประเภท {k}"
+    
+    user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
+    recruiter_name = UsersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+    return f"{user_name} ไม่เคยทำงานกับ {recruiter_name}"
