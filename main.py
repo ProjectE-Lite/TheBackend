@@ -173,6 +173,11 @@ async def get_review_detail(review_id: str):
     return getReviewDetail(review_id)
 
 
+@app.get("/recruiters/{recruiter_id}/have_worked_with/{user_id}")
+async def check_have_worked_with(recruiter_id: str, user_id: str):
+    return checkHaveWorkedWith(recruiter_id, user_id)
+
+
 @app.patch("/users/{user_id}")
 async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile or None = None):
     https_url = None
@@ -217,7 +222,7 @@ async def payment_method(work_id: str, user_id: str, review_body: ReviewsRequest
 
 
 @app.patch("/users/{user_id}/withdraw/{credit}")
-def withdraw_user_credit(user_id: str,credit:int):
+async def withdraw_user_credit(user_id: str,credit:int):
     return withdrawUserCredit(user_id,credit)
 
 
@@ -227,12 +232,12 @@ async def penalized_user_credit(user_id: str, work_id: str):
 
 
 @app.patch("/recruiters/{recruiter_id}/topup/{credit}")
-def topup_recruiter_credit(recruiter_id: str, credit: int):
+async def topup_recruiter_credit(recruiter_id: str, credit: int):
     return topupRecruiterCredit(recruiter_id, credit)
 
 
 @app.patch("/users/{user_id}/update_field_of_interested")
-def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
+async def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
     return updateFieldOfInterested(user_id, vars(fieldint_body))
 
 @app.delete("/works/{work_id}")

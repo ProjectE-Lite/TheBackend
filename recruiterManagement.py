@@ -56,3 +56,11 @@ def topupRecruiterCredit(recruiter_id, credit):
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": credit}})
     return {"detail": f"Added {credit} credit to {recruiter_id}"}
+
+def checkHaveWorkedWith(recruiter_id: str, user_id: str):
+    temp = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["have_worked_with"]
+    for k, v in temp.items():
+        for user in v.keys():
+            if user_id == user:
+                return f"{user_id} has worked with {recruiter_id} ({k})"
+    return f"{user_id} hasn't worked with {recruiter_id}"
