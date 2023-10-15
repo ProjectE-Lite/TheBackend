@@ -208,6 +208,11 @@ async def accept_button(user_id: str, work_id: str):
     AcceptButton(user_id, work_id)
     return f"you accept user: {user_id}"
 
+@app.patch("/users/{user_id}/reject/{work_id}")
+async def reject_Button(user_id: str, work_id: str):
+    RejectButton(user_id, work_id)
+    return f"you reject user: {user_id}"
+
 
 @app.patch("/users/{user_id}/appoint/{work_id}/{date}/{time}")
 async def appointment_button(user_id: str, work_id: str, date: str, time: str):
