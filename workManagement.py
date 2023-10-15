@@ -334,6 +334,8 @@ def AcceptButton(user_id, work_id):
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
 
+def RejectButton(user_id, work_id):
+    return 0
 
 def updateDetailUser(user_id,user,url):
     UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": user})
@@ -370,11 +372,20 @@ def getCandidateOfWork(uid: str):
 
 
 def deleteWorkAndListwork(work_id):
-    recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    work = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    recruiter_id =  work["recruiter_id"]
     WorksCollection.delete_one({"_id": ObjectId(work_id)})
     listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
     listwork.remove(work_id)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
+    list_candidate = work["list_of_candidate"]
+    list_worker = work["list_of_worker"]
+    list_all_users = list_candidate + list_worker
+    for i in list_all_users:
+        user = UsersCollection.find_one({"_id": ObjectId(i)})
+        tmp = user["list_of_work"]
+        tmp.remove(work_id)
+        UsersCollection.update_one({"_id": ObjectId(i)},{"$set": {"list_of_work": tmp}})
     return 0
 
 
