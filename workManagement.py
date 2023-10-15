@@ -9,6 +9,21 @@ from datetime import timedelta
 
 printer = pprint.PrettyPrinter()
 
+type_work_mapping = {
+    "type1": "พนักงานเสิร์ฟ",
+    "type2": "พนักงานทำความสะอาด",
+    "type3": "ผู้ช่วยเชฟ",
+    "type4": "พนักงานต้อนรับ",
+    "type5": "พนักงานล้างจาน",
+    "type6": "พนักงานส่งอาหาร",
+    "type7": "พนักงานช่วยทำความสะอาดโต๊ะ",
+    "type8": "พนักงานครัวร้อน"
+
+}
+
+
+
+
 
 def job_cost_calculator(number_requirement, hourly_income, start_time, end_time):
     start_time = start_time.split(":")
@@ -304,7 +319,26 @@ def penalizedUserCredit(user_id, work_id):
 def AppointmentButton(user_id, work_id, date, time):
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
     recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
-    text = "You have an appointment of interview in " + date + time + " from " + recruiter_name
+    recruiter_address = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["address"]
+    work_type = WorksCollection.find_one({"_id": ObjectId(work_id)})["type_of_work"]
+    
+    if work_type in type_work_mapping.keys():
+        work_type = type_work_mapping[work_type]
+    user_doc = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    user_first_name = user_doc["first_name"]
+    user_last_name = user_doc["last_name"]
+
+    text = f"""
+        สวัสดีคุณ {user_first_name} {user_last_name},
+
+        คุณมีนัดกับ {recruiter_name} เกี่ยวกับ {work_type} ในวันที่ {date} เวลา {time}
+        สถานที่ : {recruiter_address}
+        โปรดมาให้ถึงก่อนเวลานัดหมาย 15 นาที
+
+        ขอแสดงความนับถือ
+        {recruiter_name}
+    """
+
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatusInterview(user_status_id, date+time)
     #email = "suphanat.wi@ku.th"
@@ -325,12 +359,36 @@ def AcceptButton(user_id, work_id):
     WorksCollection.update_one({"_id": ObjectId(work_id)}, all_updates)
 
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
-    recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
-    work_name = WorksCollection.find_one({"_id": ObjectId(work_id)})["name"]
-    text = f"{recruiter_name} accepted you to join {work_name}"    
+    recruiter_doc = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    user_doc = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    user_first_name = user_doc["first_name"]
+    user_last_name = user_doc["last_name"]
+    recruiter_name = recruiter_doc["name"]
+    recruiter_address =recruiter_doc["address"]
+    work_doc = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    work_type = work_doc["type_of_work"]
+    
+    if work_type in type_work_mapping.keys():
+        work_type = type_work_mapping[work_type]
+
+    
+    text = f"""
+        สวัสดีคุณ {user_first_name} {user_last_name},
+
+        การยื่นสมัครงานสำหรับ {work_type} ของคุณกับ {recruiter_name} ได้รับการยอมรับแล้ว
+        สถานที่ : {recruiter_address}
+        โปรดมาให้ถึงที่ทำงานก่อนเวลาทำงาน 30 นาทีเพื่อเตรียมตัวให้พร้อมสำหรับงาน
+
+        ขอแสดงความนับถือ  
+        {recruiter_name}
+
+
+    """    
+
+    
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatus(user_status_id, "working")
-    updateUserStatusWorkApp(user_status_id, "site work details")
+    updateUserStatusWorkApp(user_status_id, recruiter_address)
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
 
@@ -419,6 +477,24 @@ def notiFieldOfInterestToUser(work):
         try:
             if user['field_of_interested'][work['type_of_work']]:
                 text = work["name"] + '(งานแนะนำ) : วันที่ '+ work["work_date"]
+
+                work_type = work["type_of_work"]
+                if work_type in type_work_mapping.keys():
+                    work_type = type_work_mapping[work_type]
+                recruiter_id = work["recruiter_id"]
+                recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+                    
+                text = f"""
+                    สวัสดีคุณ {user["first_name"]} {user["last_name"]},
+
+                    จากความสนใจที่คุณได้กรอกมา ตอนนี้งานที่ตรงกับความสนใจของคุณถูกประกาศมาแล้ว
+                    ประเภทงาน : {work_type}
+                    ชื่อผู้ประกอบการ: {recruiter_name}
+                    คุณสามารถกดสมัครงานนี้ได้แล้ว
+
+                    ขอแสดงความนับถือ
+                    {recruiter_name}
+                """
                 recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
                 rc_id = str(recruiter['_id'])         
                 x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': work["work_date"], 'text': text })
@@ -432,3 +508,28 @@ def notiFieldOfInterestToUser(work):
             #except for user who don't have FieldOfInterest
    return 0
 
+
+
+
+def notiUserAppToRecruiter(work_id, user_id):
+    recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    recruiter_doc = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
+    recruiter_email = recruiter_doc["email"]
+    recruiter_name = recruiter_doc["name"]
+    work_doc = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    work_type = work_doc["type_of_work"]
+
+    user_doc = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    if work_type in type_work_mapping.keys():
+        work_type = type_work_mapping[work_type]
+    
+    text = f"""
+        สวัสดีคุณ {recruiter_name},
+
+        งาน {work_type} ของคุณมีผู้สมัครใหม่ชื่อ {user_doc["first_name"]} {user_doc["last_name"]} มาเพิ่มแล้ว
+        กรุณากดตอบรับ/ปฏิเสธ
+
+        ขอแสดงความนับถือ
+        E-lite
+    """
+    EmailNotification(recruiter_email, "มีผู้สมัครเข้ามาในงานของคุณ", text)
