@@ -200,7 +200,7 @@ async def apply_button(user_id: str, work_id: str):
     addUserToListOfCandidate(work_id, user_id)
     addWorkToListOfWork(work_id, user_id)
     initUserStatus(work_id, user_id)
-    # notiUserAppToRecruiter()
+    notiUserAppToRecruiter(work_id, user_id)
     
 
 @app.patch("/users/{user_id}/accept/{work_id}")

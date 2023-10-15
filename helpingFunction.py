@@ -149,10 +149,19 @@ def manageMoneyExchange(work_id, user_id):
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
        
-        
 
-    subject = "brooo you have got a moneyyyy"
-    body = f"{recruiter_name} has paid you {cost} for {work_name}"
+    subject = "คุณได้รับค่าจ้าง"
+    #body = f"{recruiter_name} has paid you {cost} for {work_name}"
+    body = f"""
+        สวัสดีคุณ {userdoc["first_name"]} {userdoc["last_name"]},
+
+        ยินดีด้วย
+        คุณได้รับค่าจ้างจำนวน {cost} บาทแล้วจาก {recruiter_name} 
+
+        ขอแสดงความนับถือ      
+        {recruiter_name}
+
+    """
     EmailNotification(userdoc["email"], subject, body)
     
 

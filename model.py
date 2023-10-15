@@ -159,6 +159,7 @@ class UpdateFieldOfInterested(BaseModel):
     type5: Optional[bool]
     type6: Optional[bool]
     type7: Optional[bool]
+    type8: Optional[bool]
 
     
     
