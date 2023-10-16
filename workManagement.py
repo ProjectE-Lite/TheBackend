@@ -392,6 +392,25 @@ def AcceptButton(user_id, work_id):
     email = "suphanat.wi@ku.th"
     EmailNotification(email, "Accepted", text)
 
+def RejectButton(user_id, work_id):
+    work = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    candidate = work["list_of_candidate"]
+    candidate.remove(user_id)
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$set": {"list_of_candidate":candidate}})
+    user = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    tmp = user["list_of_work"]
+    tmp.remove(work_id)
+    UsersCollection.update_one({"_id": ObjectId(user_id)},{"$set": {"list_of_work": tmp}})
+
+    recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
+    text = f"สวัสดีคุณ {user.first_name},\nการยื่นสมัครงานสำหรับ {work.name} ของคุณถูกปฏิเสธ\nขอแสดงความนับถือ\n{recruiter.name}"
+    EmailNotification(user["email"], "Sorry", text)
+    
+    rc_id = str(recruiter['_id'])         
+    x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': getNowDate(), 'text': text })
+    print(user["_id"])
+    UsersCollection.update_one({"_id": ObjectId(user["_id"])}, {"$addToSet": {"notification": str(x.inserted_id)}})
+    return 0
 
 def updateDetailUser(user_id,user,url):
     UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": user})
@@ -428,11 +447,20 @@ def getCandidateOfWork(uid: str):
 
 
 def deleteWorkAndListwork(work_id):
-    recruiter_id =  WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
+    work = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    recruiter_id =  work["recruiter_id"]
     WorksCollection.delete_one({"_id": ObjectId(work_id)})
     listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
     listwork.remove(work_id)
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
+    list_candidate = work["list_of_candidate"]
+    list_worker = work["list_of_worker"]
+    list_all_users = list_candidate + list_worker
+    for i in list_all_users:
+        user = UsersCollection.find_one({"_id": ObjectId(i)})
+        tmp = user["list_of_work"]
+        tmp.remove(work_id)
+        UsersCollection.update_one({"_id": ObjectId(i)},{"$set": {"list_of_work": tmp}})
     return 0
 
 
