@@ -295,20 +295,36 @@ def getListOfWorker(work_id):
     return worker
 
 
+
+
+def isEndWorkProcess(work_id: str):
+    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"].values()
+    
+    for id in list_of_user_status_id:
+        status = UserStatusInWorkCollection.find_one({"_id": ObjectId(id)})["user_status"]
+        if status == "working":
+            return False
+    return True
+    
+
+
 def penalizedUserCredit(user_id, work_id):
     penalty = 500
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
 
-    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
-    len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
-    print(len_list_of_worker)
-    if len_list_of_worker == 0:
-        #returnMoneyFromPotToRecruiter
+
+    workdoc = WorksCollection.find_one({"_id": ObjectId(work_id)})
+    user_stat_id = workdoc["user_status"][user_id]
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "absent"}})
+
+    is_end_work_process = isEndWorkProcess(work_id)
+    if is_end_work_process:
+        #return money from pot to recruiter
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
-        
-        
+
+
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
     UsersCollection.update_one({"_id": ObjectId(user_id)},
@@ -358,6 +374,7 @@ def AcceptButton(user_id, work_id):
         }
     WorksCollection.update_one({"_id": ObjectId(work_id)}, all_updates)
 
+  
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
     recruiter_doc = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})
     user_doc = UsersCollection.find_one({"_id": ObjectId(user_id)})
@@ -389,7 +406,7 @@ def AcceptButton(user_id, work_id):
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatus(user_status_id, "working")
     updateUserStatusWorkApp(user_status_id, recruiter_address)
-    email = "suphanat.wi@ku.th"
+    email = user_doc["email"]
     EmailNotification(email, "Accepted", text)
 
 def RejectButton(user_id, work_id):

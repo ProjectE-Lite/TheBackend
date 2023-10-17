@@ -123,6 +123,16 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
     UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(minfo.inserted_id)}})
 
 
+def isEndWorkProcess(work_id: str):
+    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"].values()
+    
+    for id in list_of_user_status_id:
+        status = UserStatusInWorkCollection.find_one({"_id": ObjectId(id)})["user_status"]
+        if status == "working":
+            return False
+    return True
+    
+
 def manageMoneyExchange(work_id, user_id):
     workdoc = WorksCollection.find_one({"_id": ObjectId(work_id)})    
     cost = cost_per_person(workdoc["hourly_income"], workdoc["start_time"], workdoc["end_time"])
@@ -140,16 +150,35 @@ def manageMoneyExchange(work_id, user_id):
     userdoc = UsersCollection.find_one({"_id": ObjectId(user_id)})
     
     recruiter_name = recruiterdoc["name"]
-    work_name = workdoc["name"]
+   
+    #dont $pull(delete) keep it showing, Instead change status
+    #WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
+    
+    #update status section
+    user_stat_id = workdoc["user_status"][user_id]
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "paid"}})
 
-    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
-    len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
-    if len_list_of_worker == 0:
-        #returnMoneyFromPotToRecruiter
+
+
+    ####################### if there is no working -> return money from pot to recruiter -> end process of work
+    is_end_work_process = isEndWorkProcess(work_id)
+    if is_end_work_process:
+        #return money from pot to recruiter
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
-       
+        #maybe $pull work from Recruiter.list_of_work
+        
+    
+        
+    # len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
+    # if len_list_of_worker == 0:
+    #     #returnMoneyFromPotToRecruiter
+    #     money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
+    #     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+    # #######################
 
+
+    
     subject = "คุณได้รับค่าจ้าง"
     #body = f"{recruiter_name} has paid you {cost} for {work_name}"
     body = f"""
