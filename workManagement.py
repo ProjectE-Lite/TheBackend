@@ -398,10 +398,7 @@ def deleteWorkAndListwork(work_id):
     list_worker = work["list_of_worker"]
     list_all_users = list_candidate + list_worker
     for i in list_all_users:
-        user = UsersCollection.find_one({"_id": ObjectId(i)})
-        tmp = user["list_of_work"]
-        tmp.remove(work_id)
-        UsersCollection.update_one({"_id": ObjectId(i)},{"$set": {"list_of_work": tmp}})
+        UsersCollection.update_one({"_id": ObjectId(i)},{"$pull": {"list_of_work": work_id}})
     return 0
 
 
