@@ -403,7 +403,10 @@ def RejectButton(user_id, work_id):
     UsersCollection.update_one({"_id": ObjectId(user_id)},{"$set": {"list_of_work": tmp}})
 
     recruiter = RecruitersCollection.find_one({"_id": ObjectId(work['recruiter_id'])})
-    text = f"สวัสดีคุณ {user.first_name},\nการยื่นสมัครงานสำหรับ {work.name} ของคุณถูกปฏิเสธ\nขอแสดงความนับถือ\n{recruiter.name}"
+    user_name = user["first_name"]
+    work_name = work["name"]
+    recruiter_name = recruiter["name"]
+    text = f"สวัสดีคุณ {user_name},\nการยื่นสมัครงานสำหรับ {work_name} ของคุณถูกปฏิเสธ\nขอแสดงความนับถือ\n{recruiter_name}"
     EmailNotification(user["email"], "Sorry", text)
     
     rc_id = str(recruiter['_id'])         
