@@ -336,9 +336,7 @@ def AcceptButton(user_id, work_id):
 
 def RejectButton(user_id, work_id):
     work = WorksCollection.find_one({"_id": ObjectId(work_id)})
-    candidate = work["list_of_candidate"]
-    candidate.remove(user_id)
-    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$set": {"list_of_candidate":candidate}})
+    WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_candidate":user_id}})
     user = UsersCollection.find_one({"_id": ObjectId(user_id)})
     tmp = user["list_of_work"]
     tmp.remove(work_id)
@@ -395,9 +393,7 @@ def deleteWorkAndListwork(work_id):
     work = WorksCollection.find_one({"_id": ObjectId(work_id)})
     recruiter_id =  work["recruiter_id"]
     WorksCollection.delete_one({"_id": ObjectId(work_id)})
-    listwork = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["list_of_work"]
-    listwork.remove(work_id)
-    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$set": {"list_of_work": listwork}})
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)},{"$pull": {"list_of_work": work_id}})
     list_candidate = work["list_of_candidate"]
     list_worker = work["list_of_worker"]
     list_all_users = list_candidate + list_worker
