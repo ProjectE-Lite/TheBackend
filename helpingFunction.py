@@ -135,10 +135,13 @@ def isEndWorkProcess(work_id: str):
 
 
 def isAppliedWork(user_id: str, work_id: str):
-    list_of_work = UsersCollection.find_one({"_id": ObjectId(user_id)})["list_of_work"]
+    uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    winfo = WorksCollection.find_one({"_id": ObjectId(work_id)})
     
-    if work_id in list_of_work:
-        return True
+    if work_id in uinfo["list_of_work"]:
+        if uinfo["age"] > winfo["minimum_age"]:
+            if winfo["gender_requirement"] == "ไม่ระบุ" or uinfo["gender"] == winfo["gender_requirement"]:
+                return True
     return False
     
 
