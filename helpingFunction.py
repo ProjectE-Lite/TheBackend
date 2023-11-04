@@ -124,13 +124,23 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
 
 
 def isEndWorkProcess(work_id: str):
-    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"].values()
+    list_of_worker = WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"]
+    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"]
     
-    for id in list_of_user_status_id:
-        status = UserStatusInWorkCollection.find_one({"_id": ObjectId(id)})["user_status"]
-        if status == "working":
-            return False
+    for uid,sid in list_of_user_status_id.items():
+        if uid in list_of_worker:
+            status = UserStatusInWorkCollection.find_one({"_id": ObjectId(sid)})["user_status"]
+            if status == "working":
+                return False
     return True
+
+
+def isAppliedWork(user_id: str, work_id: str):
+    list_of_work = UsersCollection.find_one({"_id": ObjectId(user_id)})["list_of_work"]
+    
+    if work_id in list_of_work:
+        return True
+    return False
     
 
 def manageMoneyExchange(work_id, user_id):

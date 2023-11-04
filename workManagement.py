@@ -66,7 +66,7 @@ def insertPseudoWork(work, recruiter_id):
     
     job_cost = job_cost_calculator(work["number_requirement"], work["hourly_income"], work["start_time"], work["end_time"])
     if recruiter_credit < job_cost:
-        return "your credit is too low just go to topup"
+        raise HTTPException(status_code=400, detail="Your credit is too low, need to topup")
 
     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": -job_cost}})
     work["pot"] =  job_cost
@@ -84,6 +84,15 @@ def getWorkByWorkDate(work_date):
     work_list = WorksCollection.find({"work_date": work_date})
     for i in work_list:
         ans.append(str(i["_id"]))
+    return {"work_list": ans}
+
+
+def getWorkByDateUserNoApply(user_id,work_date):
+    ans = []
+    work_list = WorksCollection.find({"work_date": work_date})
+    for i in work_list:
+        if isAppliedWork(user_id,str(i["_id"])) == False:
+            ans.append(str(i["_id"]))
     return {"work_list": ans}
 
 
@@ -129,7 +138,7 @@ def getAllWorkInRecruiter(rid: str):
     work = rinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    objwork = [ObjectId(i) for i in work]
+    objwork = [ObjectId(i) for i in work if isEndWorkProcess(i) == False]
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
         x = getRecWorkFromListByDate(rid,i["work_date"])
@@ -207,7 +216,7 @@ def updateUserStatusWorkApp(user_status_id, work_appointment):
 
 def initUserStatus(work_id, user_id):
     user_status = {
-        "user_status": "รอ",
+        "user_status": "waiting",
         "interview_appointment": None,
         "work_appointment": None
     }
@@ -293,19 +302,6 @@ def getListOfWorker(work_id):
         raise HTTPException(status_code=400, detail="Work not found")
     worker = winfo["list_of_worker"]
     return worker
-
-
-
-
-def isEndWorkProcess(work_id: str):
-    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"].values()
-    
-    for id in list_of_user_status_id:
-        status = UserStatusInWorkCollection.find_one({"_id": ObjectId(id)})["user_status"]
-        if status == "working":
-            return False
-    return True
-    
 
 
 def penalizedUserCredit(user_id, work_id):

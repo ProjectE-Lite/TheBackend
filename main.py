@@ -84,6 +84,11 @@ async def get_work_by_work_date(work_date: str):
     return getWorkByWorkDate(work_date)
 
 
+@app.get("users/{user_id}/work_date/{work_date}")
+async def get_work_by_date_user_no_apply(user_id: str, work_date: str):
+    return getWorkByDateUserNoApply(user_id, work_date)
+
+
 @app.get("/works/{work_id}/status")
 async def get_work_status_and_list_of_user(work_id: str):
     return getWorkStatusAndListOfUser(work_id)
@@ -218,6 +223,7 @@ async def accept_button(user_id: str, work_id: str):
     AcceptButton(user_id, work_id)
     return f"you accept user: {user_id}"
 
+
 @app.patch("/users/{user_id}/reject/{work_id}")
 async def reject_Button(user_id: str, work_id: str):
     RejectButton(user_id, work_id)
@@ -255,13 +261,16 @@ async def topup_recruiter_credit(recruiter_id: str, credit: int):
 async def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
     return updateFieldOfInterested(user_id, vars(fieldint_body))
 
+
 @app.get("/recruiters/{recruiter_id}/money_exchange_monthly/{month}")
 async def get_recruiter_list_of_money_exchange_monthly(recruiter_id: str,month: str):
     return getRecMoneyExchangeMonthly(recruiter_id, month)
 
+
 @app.get("/users/{user_id}/money_exchange_monthly/{month}")
 async def get_user_list_of_money_exchange_monthly(user_id: str,month: str):
     return getUserMoneyExchangeMonthly(user_id,month)
+
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
