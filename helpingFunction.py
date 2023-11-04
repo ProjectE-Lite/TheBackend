@@ -124,11 +124,10 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
 
 
 def isEndWorkProcess(work_id: str):
-    list_of_worker = WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"]
-    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"]
-    
-    for uid,sid in list_of_user_status_id.items():
-        if uid in list_of_worker:
+    wstatus = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"]
+    wworker = WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"]
+    for uid,sid in wstatus.items():
+        if uid in wworker:
             status = UserStatusInWorkCollection.find_one({"_id": ObjectId(sid)})["user_status"]
             if status == "working":
                 return False
@@ -174,6 +173,7 @@ def manageMoneyExchange(work_id, user_id):
         #return money from pot to recruiter
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+        RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$pull": {"list_of_work": work_id}})
      
     
     

@@ -133,17 +133,13 @@ def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
 
 def getAllWorkInRecruiter(rid: str):
     ans = {}
-    objwork = []
     rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
     work = rinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    for i in work:
-        checkworkend = isEndWorkProcess(i)
-        if checkworkend == False:
-            objwork.append(ObjectId(i))
+    objwork = [ObjectId(i) for i in work]
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
         x = getRecWorkFromListByDate(rid,i["work_date"])
@@ -324,6 +320,7 @@ def penalizedUserCredit(user_id, work_id):
         #return money from pot to recruiter
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+        RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$pull": {"list_of_work": work_id}})
 
     usernoti_body = {}
     nowdate = getNowDate()
