@@ -195,8 +195,6 @@ def manageMoneyExchange(work_id, user_id):
     
 
 def manageReview(user_id, work_id, review_body):
-    
-    
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
     score = review_body["score"]
     text = review_body["text"]
@@ -211,6 +209,21 @@ def manageReview(user_id, work_id, review_body):
         "$addToSet": {f"feedback.{score}": str(rinfo.inserted_id)}
     }
     UsersCollection.update_one({"_id": ObjectId(user_id)}, all_updates)
+    managePoint(user_id)
+
+
+def managePoint(user_id):
+    uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
+    totalpoint = 0
+    count = 0
+    if uinfo["feedback"]:
+        for x,y in uinfo["feedback"].items():
+            count += len(y)
+            totalpoint += int(x)*len(y)
+        avgpoint = totalpoint / count
+    else:
+        avgpoint = 0
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$set": {"point": avgpoint}})
 
 
 def convert(lst):

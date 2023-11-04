@@ -46,7 +46,7 @@ async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
     return insertPseudoWork(vars(work), recruiter_id)
 
 
-@app.post("/recruiters/login", tags=["Recruiters"])
+@app.patch("/recruiters/login", tags=["Recruiters"])
 async def recruiter_login(recruiter: Login):
     if check_recruiter(recruiter.username, recruiter.password):
         rinfo = check_recruiter(recruiter.username, recruiter.password)
@@ -55,13 +55,23 @@ async def recruiter_login(recruiter: Login):
         raise HTTPException(status_code=400, detail="Invalid login details")
 
 
-@app.post("/users/login", tags=["Users"])
+@app.patch("/users/login", tags=["Users"])
 async def user_login(user: Login):
     if check_user(user.username, user.password):
         uinfo = check_user(user.username, user.password)
         return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
     else:
         raise HTTPException(status_code=400, detail="Invalid login details")
+    
+
+@app.patch("/recruiters/forgot/{recruiter_uname}", tags=["Recruiters"])
+async def recruiter_forgot_password(recruiter_uname: str):
+    return recruiterForgotPassword(recruiter_uname)
+
+
+@app.patch("/users/forgot/{user_uname}", tags=["Users"])
+async def user_forgot_password(user_uname: str):
+    return userForgotPassword(user_uname)
 
 
 @app.get("/works/{work_id}")
@@ -244,6 +254,7 @@ async def topup_recruiter_credit(recruiter_id: str, credit: int):
 @app.patch("/users/{user_id}/update_field_of_interested")
 async def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
     return updateFieldOfInterested(user_id, vars(fieldint_body))
+
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):

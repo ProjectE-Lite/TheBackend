@@ -21,6 +21,23 @@ def check_user(uname: str, passwd: str):
         return uinfo
     
 
+def userForgotPassword(uname: str):
+    uinfo = UsersCollection.find_one({"username": uname})
+    if not uinfo:
+        raise HTTPException(status_code=400, detail="There's no account with that username")
+    body = f"""
+        สวัสดีคุณ {uinfo["first_name"]} {uinfo["last_name"]},
+
+        รหัสผ่านของคุณคือ
+        {uinfo["password"]}
+
+        ขอแสดงความนับถือ
+        E-Lite
+    """
+    EmailNotification(uinfo["email"], "รหัสผ่านของคุณ", body)
+    return {"detail": "Your password has been sent to your email address."}
+    
+
 def addWorkToListOfWork(work_id, user_id):
     UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_work": work_id}})
 

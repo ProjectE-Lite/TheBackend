@@ -18,6 +18,23 @@ def check_recruiter(uname: str, passwd: str):
         return rinfo
     
 
+def recruiterForgotPassword(uname: str):
+    rinfo = RecruitersCollection.find_one({"username": uname})
+    if not rinfo:
+        raise HTTPException(status_code=400, detail="There's no account with that username")
+    body = f"""
+        สวัสดีคุณ {rinfo["first_name"]} {rinfo["last_name"]},
+
+        รหัสผ่านของคุณคือ
+        {rinfo["password"]}
+
+        ขอแสดงความนับถือ
+        E-Lite
+    """
+    EmailNotification(rinfo["email"], "รหัสผ่านของคุณ", body)
+    return {"detail": "Your password has been sent to your email address."}
+    
+
 #can recruiters add type_of_work?
 
 
