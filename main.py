@@ -255,13 +255,13 @@ async def topup_recruiter_credit(recruiter_id: str, credit: int):
 async def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
     return updateFieldOfInterested(user_id, vars(fieldint_body))
 
-@app.get("/recruiters/{recruiter_id}/money_exchange_monthly/{month}")
-async def get_recruiter_list_of_money_exchange_monthly(recruiter_id: str,month: str):
-    return getRecMoneyExchangeMonthly(recruiter_id, month)
+@app.get("/recruiters/{recruiter_id}/money_exchange_monthly")
+async def get_recruiter_list_of_money_exchange_monthly(recruiter_id: str):
+    return getRecMoneyMonthly(recruiter_id)
 
-@app.get("/users/{user_id}/money_exchange_monthly/{month}")
-async def get_user_list_of_money_exchange_monthly(user_id: str,month: str):
-    return getUserMoneyExchangeMonthly(user_id,month)
+@app.get("/users/{user_id}/money_exchange_monthly")
+async def get_user_list_of_money_exchange_monthly(user_id: str):
+    return getUserMoneyMonthly(user_id)
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):
