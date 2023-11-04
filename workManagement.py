@@ -324,6 +324,12 @@ def penalizedUserCredit(user_id, work_id):
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
 
+    usernoti_body = {}
+    nowdate = getNowDate()
+    usernoti_body["recruiter_id"] = str(recruiter_id)
+    usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    usernoti_body["text"] = f"ท่านโดนหักคะแนน 500 credit เนื่องจากไม่มาทำงานกับ {workdoc['name']} ตามเวลา"
+    UsersNotificationCollection.insert_one(usernoti_body)
 
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
@@ -358,6 +364,15 @@ def AppointmentButton(user_id, work_id, date, time):
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
     updateUserStatusInterview(user_status_id, date+time)
     #email = "suphanat.wi@ku.th"
+
+
+    usernoti_body = {}
+    nowdate = getNowDate()
+    usernoti_body["recruiter_id"] = str(recruiter_id)
+    usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    usernoti_body["text"] = text
+    UsersNotificationCollection.insert_one(usernoti_body)
+
     email = UsersCollection.find_one({"_id": ObjectId(user_id)})["email"]
     EmailNotification(email, "Appointment", text)
     #notiDatabase
@@ -404,6 +419,16 @@ def AcceptButton(user_id, work_id):
 
     
     user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"][user_id]
+    
+    usernoti_body = {}
+    usernoti_body["recruiter_id"] = str(recruiter_id)
+    nowdate = getNowDate()
+    usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    usernoti_body["text"] = text
+    UsersNotificationCollection.insert_one(usernoti_body)
+
+
+
     updateUserStatus(user_status_id, "working")
     updateUserStatusWorkApp(user_status_id, recruiter_address)
     email = user_doc["email"]
@@ -425,7 +450,9 @@ def RejectButton(user_id, work_id):
     EmailNotification(user["email"], "Sorry", text)
     
     rc_id = str(recruiter['_id'])         
-    x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': getNowDate(), 'text': text })
+    nowdate = getNowDate()
+    ddate = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    x = UsersNotificationCollection.insert_one({'recruiter_id': rc_id ,'date': ddate, 'text': text })
     print(user["_id"])
     UsersCollection.update_one({"_id": ObjectId(user["_id"])}, {"$addToSet": {"notification": str(x.inserted_id)}})
     return 0
@@ -573,4 +600,11 @@ def notiUserAppToRecruiter(work_id, user_id):
         ขอแสดงความนับถือ
         E-lite
     """
+
+    recnoti_body = {}
+    recnoti_body["user_id"] = str(user_id)
+    nowdate = getNowDate()
+    recnoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    recnoti_body["text"] = text
+    RecruitersNotificationCollection.insert_one(recnoti_body)
     EmailNotification(recruiter_email, "มีผู้สมัครเข้ามาในงานของคุณ", text)

@@ -151,8 +151,6 @@ def manageMoneyExchange(work_id, user_id):
     
     recruiter_name = recruiterdoc["name"]
    
-    #dont $pull(delete) keep it showing, Instead change status
-    #WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
     
     #update status section
     user_stat_id = workdoc["user_status"][user_id]
@@ -166,18 +164,8 @@ def manageMoneyExchange(work_id, user_id):
         #return money from pot to recruiter
         money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
         RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
-        #maybe $pull work from Recruiter.list_of_work
-        
+     
     
-        
-    # len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
-    # if len_list_of_worker == 0:
-    #     #returnMoneyFromPotToRecruiter
-    #     money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
-    #     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
-    # #######################
-
-
     
     subject = "คุณได้รับค่าจ้าง"
     #body = f"{recruiter_name} has paid you {cost} for {work_name}"
@@ -191,6 +179,14 @@ def manageMoneyExchange(work_id, user_id):
         {recruiter_name}
 
     """
+    usernoti_body = {}
+    usernoti_body["recruiter_id"] = str(recruiter_id)
+    nowdate = getNowDate()
+    usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
+    usernoti_body["text"] = body
+    UsersNotificationCollection.insert_one(usernoti_body)
+    
+    
     EmailNotification(userdoc["email"], subject, body)
     
 
