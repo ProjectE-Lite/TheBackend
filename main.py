@@ -84,7 +84,7 @@ async def get_work_by_work_date(work_date: str):
     return getWorkByWorkDate(work_date)
 
 
-@app.get("users/{user_id}/work_date/{work_date}")
+@app.get("/users/{user_id}/work_date/{work_date}")
 async def get_work_by_date_user_no_apply(user_id: str, work_date: str):
     return getWorkByDateUserNoApply(user_id, work_date)
 
