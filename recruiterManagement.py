@@ -57,13 +57,30 @@ def getRecMoneyExchangeMonthly(rid: str, month:str):
     for i in getRecListOfMoneyExchange(rid):
         x = getMoneyExchange(i)
         m = x["date"].month
+        y = x["date"].year
+        cerrent_year = datetime.now().year
         credit = int(x["credit"])
-        if str(m)==month:
-            if credit >= 0 :
+        fromm = x["from"]
+        if str(m)==month and y == cerrent_year:
+            if fromm == "Bank":
                 inn+=credit
             else:
                 out+=credit
     return {"in": inn ,"out": out}
+
+def getRecMoneyMonthly(rid: str):
+    ans = {}
+    month = []
+    for i in getRecListOfMoneyExchange(rid):
+        x = getMoneyExchange(i)
+        m = x["date"].month
+        if m not in month:
+            month.append(m)
+    for m in month:
+        ans[m] = getRecMoneyExchangeMonthly(rid, str(m))
+    return ans
+
+
 
 def addHaveWorkedWith(work_id, user_id):
     work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})

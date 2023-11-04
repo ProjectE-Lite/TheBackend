@@ -71,13 +71,29 @@ def getUserMoneyExchangeMonthly(uid: str, month:str):
     for i in getUserListOfMoneyExchange(uid):
         x = getMoneyExchange(i)
         m = x["date"].month
+        y = x["date"].year
+        cerrent_year = datetime.now().year
         credit = int(x["credit"])
-        if str(m)==month:
+        print(y)
+        if str(m)==month and y == cerrent_year :
             if credit >= 0 :
                 inn+=credit
             else:
                 out+=credit
     return {"in": inn ,"out": out*-1}
+
+def getUserMoneyMonthly(uid: str):
+    ans = {}
+    month = []
+    for i in getUserListOfMoneyExchange(uid):
+        x = getMoneyExchange(i)
+        m = x["date"].month
+        if m not in month:
+            month.append(m)
+    for m in month:
+        ans[m] = getUserMoneyExchangeMonthly(uid, str(m))
+    return ans
+
 
 def withdrawUserCredit(uid: str,credit: int):    
     datenow = datetime.now()
