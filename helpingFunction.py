@@ -3,7 +3,31 @@ import datetime
 from datetime import datetime, timedelta
 import pprint
 from database import *
+from model import *
+from fastapi import Form, HTTPException, status
+from fastapi.encoders import jsonable_encoder
+from pydantic import ValidationError
 
+
+
+models = {"recruiters": Recruiters, "users": Users, "works": Works, "reviews": Reviews,
+          "recruitersReq": RecruitersRequest, "usersReq": UsersRequest, "worksReq": WorksRequest, "reviewsReq": ReviewsRequest,
+          "login": Login, "usersUp": UpdateUsers, "worksUp": UpdateWorks}
+
+
+class DataChecker:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __call__(self, data: str = Form(...)):
+        try:
+            model = models[self.name].parse_raw(data)
+        except ValidationError as e:
+            raise HTTPException(
+                detail=jsonable_encoder(e.errors()),
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        return model
 
 
 def return_items(item, name_header):
@@ -94,10 +118,20 @@ def insertMoneyExchange(recruiter_id, user_id, cost):
                            "date": datenow,
                            "credit": cost}
     
-    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
-    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
-    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(mid["_id"])}})
+    minfo = MoneyExchangeCollection.insert_one(money_exchange_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(minfo.inserted_id)}})
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"list_of_money_exchange": str(minfo.inserted_id)}})
 
+
+def isEndWorkProcess(work_id: str):
+    list_of_user_status_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["user_status"].values()
+    
+    for id in list_of_user_status_id:
+        status = UserStatusInWorkCollection.find_one({"_id": ObjectId(id)})["user_status"]
+        if status == "working":
+            return False
+    return True
+    
 
 def manageMoneyExchange(work_id, user_id):
     workdoc = WorksCollection.find_one({"_id": ObjectId(work_id)})    
@@ -116,10 +150,47 @@ def manageMoneyExchange(work_id, user_id):
     userdoc = UsersCollection.find_one({"_id": ObjectId(user_id)})
     
     recruiter_name = recruiterdoc["name"]
-    work_name = workdoc["name"]
+   
+    #dont $pull(delete) keep it showing, Instead change status
+    #WorksCollection.update_one({"_id": ObjectId(work_id)}, {"$pull": {"list_of_worker": f"{user_id}" }})
+    
+    #update status section
+    user_stat_id = workdoc["user_status"][user_id]
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "paid"}})
 
-    subject = "brooo you have got a moneyyyy"
-    body = f"{recruiter_name} has paid you {cost} for {work_name}"
+
+
+    ####################### if there is no working -> return money from pot to recruiter -> end process of work
+    is_end_work_process = isEndWorkProcess(work_id)
+    if is_end_work_process:
+        #return money from pot to recruiter
+        money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
+        RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+        #maybe $pull work from Recruiter.list_of_work
+        
+    
+        
+    # len_list_of_worker = len(WorksCollection.find_one({"_id": ObjectId(work_id)})["list_of_worker"])
+    # if len_list_of_worker == 0:
+    #     #returnMoneyFromPotToRecruiter
+    #     money_left_from_pot = WorksCollection.find_one({"_id": ObjectId(work_id)})["pot"]
+    #     RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": money_left_from_pot}})
+    # #######################
+
+
+    
+    subject = "คุณได้รับค่าจ้าง"
+    #body = f"{recruiter_name} has paid you {cost} for {work_name}"
+    body = f"""
+        สวัสดีคุณ {userdoc["first_name"]} {userdoc["last_name"]},
+
+        ยินดีด้วย
+        คุณได้รับค่าจ้างจำนวน {cost} บาทแล้วจาก {recruiter_name} 
+
+        ขอแสดงความนับถือ      
+        {recruiter_name}
+
+    """
     EmailNotification(userdoc["email"], subject, body)
     
 
@@ -134,10 +205,16 @@ def manageReview(user_id, work_id, review_body):
                   "score": score,
                   "text": text}
     
-    rid = ReviewsCollection.insert_one(review_doc)
+    rinfo = ReviewsCollection.insert_one(review_doc)
 
     all_updates = {
-        "$addToSet": {f"feedback.{score}": str(rid["_id"])}
+        "$addToSet": {f"feedback.{score}": str(rinfo.inserted_id)}
     }
     UsersCollection.update_one({"_id": ObjectId(user_id)}, all_updates)
 
+
+def convert(lst):
+   res_dict = {}
+   for i in range(len(lst)):
+       res_dict[lst[i][0]] = lst[i][1]
+   return res_dict

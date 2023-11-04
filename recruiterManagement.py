@@ -6,7 +6,8 @@ from helpingFunction import *
 
 
 def insertPseudoRecruiter(recruiter):
-    RecruitersCollection.insert_one(recruiter)
+    rinfo = RecruitersCollection.insert_one(recruiter)
+    return rinfo.inserted_id
 
 
 def check_recruiter(uname: str, passwd: str):
@@ -22,17 +23,52 @@ def check_recruiter(uname: str, passwd: str):
 
 
 
+def getRecListOfMoneyExchange(rid: str):
+    ans = []
+    mid = RecruitersCollection.find_one({"_id": ObjectId(rid)})["list_of_money_exchange"]
+    objmid = [ObjectId(i) for i in mid]
+    mlist = MoneyExchangeCollection.find({"_id": {"$in": objmid}})
+    for i in mlist:
+        ans.append(str(i["_id"]))
+    ans.reverse()
+    return ans
+
+
 def addHaveWorkedWith(work_id, user_id):
     work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})
     work_type = work_cursor["type_of_work"]
-    recruiter_id = work_cursor["_id"]
+    recruiter_id = work_cursor["recruiter_id"]
+    print(work_type, recruiter_id)
 
     all_updates = {
-        "$set" : {f"have_worked_with.{work_type}.{user_id}": True}
+        "$set" : {f"have_worked_with.{work_type}.{ObjectId(user_id)}": True}
     }
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, all_updates)
 
 
-    RecruitersCollection.update_one({"_id": recruiter_id}, all_updates)
+def topupRecruiterCredit(recruiter_id, credit):
+    datenow = datetime.now()
+    money_exchange_body = {"from": "Bank",
+                           "to": recruiter_id,
+                           "date": datenow,
+                           "credit": credit}
+    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$inc": {"credit": credit}})
+    return {"detail": f"Added {credit} credit to {recruiter_id}"}
+
+def checkHaveWorkedWith(recruiter_id: str, user_id: str):
+    temp = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["have_worked_with"]
+    for k, v in temp.items():
+        for user in v.keys():
+            if user_id == user:
+                #user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
+                recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+                return f"เคยทำงานกับ {recruiter_name} ประเภท {k}"
+    
+    #user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
+    recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
+    return f"ไม่เคยทำงานกับ {recruiter_name}"
 
 
-
+#d

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, UploadFile
 from pydantic import BaseModel
 from database import *
 from model import *
@@ -8,8 +8,12 @@ from workManagement import *
 from helpingFunction import *
 from auth.jwt_handler import *
 from auth.jwt_bearer import *
+import cloudinary.uploader
 
 app = FastAPI()
+
+RecruitersReq_checker = DataChecker("recruitersReq")
+UsersUp_checker = DataChecker("usersUp")
 
 # if any function need authentication, simply add "dependencies=[Depends(jwtBearer())]" in endpoint
 # Example: @app.get("/works/{work_id}") --> @app.get("/works/{work_id}", dependencies=[Depends(jwtBearer())])
@@ -20,10 +24,13 @@ async def gen12datenext():
 
 
 @app.post("/recruiters", tags=["Recruiters"])
-async def insert_pseudo_recruiter(recruiter: RecruitersRequest):
-    insertPseudoRecruiter(vars(recruiter))
-    rinfo = check_recruiter(recruiter.username, recruiter.password)
-    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rinfo["_id"])}}
+async def insert_pseudo_recruiter(recruiter: RecruitersRequest = Depends(RecruitersReq_checker), file: UploadFile = File(...)):
+    rid = insertPseudoRecruiter(vars(recruiter))
+    result = cloudinary.uploader.upload(file.file, public_id = str(rid))
+    url = result.get("url")
+    https_url = url[:4] + 's' + url[4:]
+    RecruitersCollection.update_one({"_id": rid}, {"$set": {"image": https_url}})
+    return {"access token": signJWT(recruiter.username), "data": {"recruiter_id": str(rid)}}
 
 
 @app.post("/users", tags=["Users"])
@@ -31,6 +38,7 @@ async def insert_pseudo_user(user: UsersRequest):
     insertPseudoUser(vars(user))
     uinfo = check_user(user.username, user.password)
     return {"access token": signJWT(user.username), "data": {"user_id": str(uinfo["_id"])}}
+
 
 @app.post("/recruiters/{recruiter_id}/works", tags=["Recruiters"])
 async def insert_pseudo_work(work: WorksRequest, recruiter_id: str):
@@ -79,6 +87,11 @@ async def get_candidate_of_work(work_id: str):
 @app.get("/works/{work_id}/worker")
 async def get_list_of_worker(work_id: str):
     return getListOfWorker(work_id)
+
+
+@app.get("/works/{work_id}/user_status")
+async def get_user_status_in_work(work_id: str):
+    return getUserStatusInWork(work_id)
 
 
 @app.get("/users/{user_id}")
@@ -130,6 +143,11 @@ async def get_user_list_of_money_exchange(user_id: str):
     return getUserListOfMoneyExchange(user_id)
 
 
+@app.get("/recruiters/{recruiter_id}/money_exchange")
+async def get_recruiter_list_of_money_exchange(recruiter_id: str):
+    return getRecListOfMoneyExchange(recruiter_id)
+
+
 @app.get("/users/noti/{noti_id}")
 async def get_user_noti_detail(noti_id: str):
     return getUserNotiDetail(noti_id)
@@ -140,9 +158,34 @@ async def get_recruiter_noti_detail(noti_id: str):
     return getRecNotiDetail(noti_id)
 
 
+@app.get("/users/status/{status_id}")
+async def get_user_status_detail(status_id: str):
+    return getUserStatusDetail(status_id)
+
+
+@app.get("/money_exchange/{exchange_id}")
+async def get_money_exchange(exchange_id: str):
+    return getMoneyExchange(exchange_id)
+
+
+@app.get("/review/{review_id}")
+async def get_review_detail(review_id: str):
+    return getReviewDetail(review_id)
+
+
+@app.get("/recruiters/{recruiter_id}/have_worked_with/{user_id}")
+async def check_have_worked_with(recruiter_id: str, user_id: str):
+    return checkHaveWorkedWith(recruiter_id, user_id)
+
+
 @app.patch("/users/{user_id}")
-async def update_user(user_id: str, user: UpdateUsers):
-    updateDetailUser(user_id,user.dict(exclude_unset = True))
+async def update_user(user_id: str, user: UpdateUsers = Depends(UsersUp_checker), file: UploadFile or None = None):
+    https_url = None
+    if file:
+        result = cloudinary.uploader.upload(file.file, public_id = user_id)
+        url = result.get("url")
+        https_url = url[:4] + 's' + url[4:]
+    updateDetailUser(user_id,user.dict(exclude_unset = True),https_url)
     return "success, you have updated user info"
 
 
@@ -157,14 +200,18 @@ async def apply_button(user_id: str, work_id: str):
     addUserToListOfCandidate(work_id, user_id)
     addWorkToListOfWork(work_id, user_id)
     initUserStatus(work_id, user_id)
-    # notiUserAppToRecruiter()
+    notiUserAppToRecruiter(work_id, user_id)
     
-    pass
-
 
 @app.patch("/users/{user_id}/accept/{work_id}")
 async def accept_button(user_id: str, work_id: str):
     AcceptButton(user_id, work_id)
+    return f"you accept user: {user_id}"
+
+@app.patch("/users/{user_id}/reject/{work_id}")
+async def reject_Button(user_id: str, work_id: str):
+    RejectButton(user_id, work_id)
+    return f"you reject user: {user_id}"
 
 
 @app.patch("/users/{user_id}/appoint/{work_id}/{date}/{time}")
@@ -180,13 +227,23 @@ async def payment_method(work_id: str, user_id: str, review_body: ReviewsRequest
 
 
 @app.patch("/users/{user_id}/withdraw/{credit}")
-def withdraw_user_credit(user_id: str,credit:int):
+async def withdraw_user_credit(user_id: str,credit:int):
     return withdrawUserCredit(user_id,credit)
 
 
-@app.patch("/users/{user_id}/absent")
-async def penalized_user_credit(user_id: str):
-    return penalizedUserCredit(user_id)
+@app.patch("/users/{user_id}/absent/{work_id}")
+async def penalized_user_credit(user_id: str, work_id: str):
+    return penalizedUserCredit(user_id, work_id)
+
+
+@app.patch("/recruiters/{recruiter_id}/topup/{credit}")
+async def topup_recruiter_credit(recruiter_id: str, credit: int):
+    return topupRecruiterCredit(recruiter_id, credit)
+
+
+@app.patch("/users/{user_id}/update_field_of_interested")
+async def update_field_of_interested(user_id: str, fieldint_body: UpdateFieldOfInterested):
+    return updateFieldOfInterested(user_id, vars(fieldint_body))
 
 @app.delete("/works/{work_id}")
 async def delete_work(work_id: str):

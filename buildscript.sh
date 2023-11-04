@@ -6,3 +6,6 @@ pip install pymongo
 pip install pydantic
 pip install pyjwt
 pip install python-decouple
+pip install cloudinary
+pip install python-multipart
+pip install certifi

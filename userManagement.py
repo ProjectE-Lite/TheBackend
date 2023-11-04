@@ -9,7 +9,8 @@ printer = pprint.PrettyPrinter()
 
 
 def insertPseudoUser(user):
-    UsersCollection.insert_one(user)
+    uinfo = UsersCollection.insert_one(user)
+    UsersCollection.update_one({"_id": uinfo.inserted_id}, {"$set": {"image": "https://res.cloudinary.com/dig1qtfkr/image/upload/v1696069288/default_profile.jpg"}})
 
 
 def check_user(uname: str, passwd: str):
@@ -32,33 +33,24 @@ def matchingFieldOfInterested(type_of_work):
 
 
 def getUserListOfMoneyExchange(uid: str):
-    moneylist=MoneyExchangeCollection.find_one({"_id": ObjectId(uid)})
-    values = moneylist["total_credit"]
-    values = str(values)
-    list_of_money=moneylist["list_of_money_exchange"]
-    dict={}
-    list=[list_of_money]
-    dict[values]=list
-    return dict
+    ans = []
+    mid = UsersCollection.find_one({"_id": ObjectId(uid)})["list_of_money_exchange"]
+    objmid = [ObjectId(i) for i in mid]
+    mlist = MoneyExchangeCollection.find({"_id": {"$in": objmid}})
+    for i in mlist:
+        ans.append(str(i["_id"]))
+    ans.reverse()
+    return ans
 
 
 def withdrawUserCredit(uid: str,credit: int):    
-    tmp = str(datetime.now())[:-3]
-    charinsert="+00:00"
-    mod_tmp=tmp+charinsert
-    charfind=" "
-    charinsert="T"
-    indexfind=tmp.find(charfind)
-    timestr=mod_tmp[:indexfind]+charinsert+mod_tmp[indexfind+1:]
-    txt={
-        "from": uid,
-        "to": "Bank",
-        "date":timestr,
-        "credit": credit,
-                }
-    MoneyExchangeCollection.insert_one(txt)
-    findmoneyex=MoneyExchangeCollection.find_one(txt)
-    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(findmoneyex["_id"])}})
+    datenow = datetime.now()
+    money_exchange_body = {"from": uid,
+                           "to": "Bank",
+                           "date": datenow,
+                           "credit": -credit}
+    mid = MoneyExchangeCollection.insert_one(money_exchange_body)
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"list_of_money_exchange": str(mid.inserted_id)}})
     
     userlist=UsersCollection.find_one({"_id":ObjectId(uid)})
     values = userlist["credit"]
@@ -69,4 +61,13 @@ def withdrawUserCredit(uid: str,credit: int):
                 }
     UsersCollection.update_one({"_id":ObjectId(uid)},txt_update)
     
-    return {"details": f"Tranfer to Bank {values}"}
+    return {"details": f"Tranferred {credit} credit to Bank", "account_credit": values}
+
+
+
+def updateFieldOfInterested(uid: str, fieldint_body):
+
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$set": {"field_of_interested": fieldint_body}})
+    return f"updated field of interested to {uid}"
+
+
