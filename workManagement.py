@@ -91,7 +91,8 @@ def getWorkByDateUserNoApply(user_id,work_date):
     ans = []
     work_list = WorksCollection.find({"work_date": work_date})
     for i in work_list:
-        if isAppliedWork(user_id,str(i["_id"])) == False:
+        checkapply = isAppliedWork(user_id,str(i["_id"]))
+        if checkapply == False:
             ans.append(str(i["_id"]))
     return {"work_list": ans}
 
@@ -132,13 +133,17 @@ def getWorkDetailsByWorkAndUserId(wid: str, uid: str):
 
 def getAllWorkInRecruiter(rid: str):
     ans = {}
+    objwork = []
     rinfo = RecruitersCollection.find_one({"_id": ObjectId(rid)})
     if not rinfo:
         raise HTTPException(status_code=400, detail="Recruiter not found")
     work = rinfo["list_of_work"]
     if not work:
         raise HTTPException(status_code=400, detail="No jobs")
-    objwork = [ObjectId(i) for i in work if isEndWorkProcess(i) == False]
+    for i in work:
+        checkworkend = isEndWorkProcess(i)
+        if checkworkend == False:
+            objwork.append(ObjectId(i))
     work_list = WorksCollection.find({"_id": {"$in": objwork}})
     for i in work_list:
         x = getRecWorkFromListByDate(rid,i["work_date"])
