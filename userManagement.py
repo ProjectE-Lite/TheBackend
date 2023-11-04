@@ -4,9 +4,15 @@ import pprint
 from helpingFunction import *
 from datetime import datetime,timedelta
 
-
 printer = pprint.PrettyPrinter()
 
+def getMoneyExchange(exchange_id):
+    minfo = MoneyExchangeCollection.find_one({"_id": ObjectId(exchange_id)})
+    return improved_return(minfo)
+
+def improved_return(item):
+    item["_id"] = str(item["_id"])
+    return item
 
 def insertPseudoUser(user):
     uinfo = UsersCollection.insert_one(user)
@@ -59,6 +65,19 @@ def getUserListOfMoneyExchange(uid: str):
     ans.reverse()
     return ans
 
+def getUserMoneyExchangeMonthly(uid: str, month:str):
+    inn = 0 
+    out = 0
+    for i in getUserListOfMoneyExchange(uid):
+        x = getMoneyExchange(i)
+        m = x["date"].month
+        credit = int(x["credit"])
+        if str(m)==month:
+            if credit >= 0 :
+                inn+=credit
+            else:
+                out+=credit
+    return {"in": inn ,"out": out*-1}
 
 def withdrawUserCredit(uid: str,credit: int):    
     datenow = datetime.now()

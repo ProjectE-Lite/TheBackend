@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 import pprint
 from datetime import datetime
 from helpingFunction import *
+from workManagement import *
 
 
 def insertPseudoRecruiter(recruiter):
@@ -50,6 +51,19 @@ def getRecListOfMoneyExchange(rid: str):
     ans.reverse()
     return ans
 
+def getRecMoneyExchangeMonthly(rid: str, month:str):
+    inn = 0 
+    out = 0
+    for i in getRecListOfMoneyExchange(rid):
+        x = getMoneyExchange(i)
+        m = x["date"].month
+        credit = int(x["credit"])
+        if str(m)==month:
+            if credit >= 0 :
+                inn+=credit
+            else:
+                out+=credit
+    return {"in": inn ,"out": out}
 
 def addHaveWorkedWith(work_id, user_id):
     work_cursor = WorksCollection.find_one({"_id": ObjectId(work_id)})
