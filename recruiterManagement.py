@@ -121,7 +121,7 @@ def checkHaveWorkedWith(recruiter_id: str, user_id: str):
             if user_id == user:
                 #user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
                 recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
-                return f"เคยทำงานกับ {recruiter_name} ประเภท {k}"
+                return f"เคยทำงานกับ {recruiter_name}"
     
     #user_name = UsersCollection.find_one({"_id": ObjectId(user_id)})["name"]
     recruiter_name = RecruitersCollection.find_one({"_id": ObjectId(recruiter_id)})["name"]
