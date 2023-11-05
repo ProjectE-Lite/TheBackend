@@ -91,8 +91,8 @@ def getWorkByDateUserNoApply(user_id,work_date):
     ans = []
     work_list = WorksCollection.find({"work_date": work_date})
     for i in work_list:
-        checkapply = isAppliedWork(user_id,str(i["_id"]))
-        if checkapply == False:
+        checkapply = isShowWork(user_id,str(i["_id"]))
+        if checkapply == True:
             ans.append(str(i["_id"]))
     return {"work_list": ans}
 
