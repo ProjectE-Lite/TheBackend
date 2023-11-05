@@ -83,6 +83,7 @@ def getUserMoneyExchangeMonthly(uid: str, month:str):
     return {"in": inn ,"out": out*-1}
 
 def getUserMoneyMonthly(uid: str):
+    result = []
     ans = []
     month = []
     for i in getUserListOfMoneyExchange(uid):
@@ -93,7 +94,9 @@ def getUserMoneyMonthly(uid: str):
     for m in month:
         ans.append(str(m))
         ans.append(getUserMoneyExchangeMonthly(uid, str(m)))
-    return ans
+        result.append(ans)
+        ans = []
+    return result
 
 
 def withdrawUserCredit(uid: str,credit: int):    
