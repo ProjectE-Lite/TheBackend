@@ -84,7 +84,7 @@ def getUserMoneyExchangeMonthly(uid: str, month:str):
 
 def getUserMoneyMonthly(uid: str):
     result = []
-    ans = []
+    ans = {}
     month = []
     for i in getUserListOfMoneyExchange(uid):
         x = getMoneyExchange(i)
@@ -92,10 +92,9 @@ def getUserMoneyMonthly(uid: str):
         if m not in month:
             month.append(m)
     for m in month:
-        ans.append(str(m))
-        ans.append(getUserMoneyExchangeMonthly(uid, str(m)))
+        ans[str(m)] = getUserMoneyExchangeMonthly(uid, str(m))
         result.append(ans)
-        ans = []
+        ans = {}
     return result
 
 
