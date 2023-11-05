@@ -217,7 +217,7 @@ def updateUserStatusWorkApp(user_status_id, work_appointment):
 
 def initUserStatus(work_id, user_id):
     user_status = {
-        "user_status": "waiting",
+        "user_status": "Waiting",
         "interview_appointment": None,
         "work_appointment": None
     }
@@ -313,7 +313,7 @@ def penalizedUserCredit(user_id, work_id):
 
     workdoc = WorksCollection.find_one({"_id": ObjectId(work_id)})
     user_stat_id = workdoc["user_status"][user_id]
-    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "absent"}})
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "Absent"}})
 
     is_end_work_process = isEndWorkProcess(work_id)
     if is_end_work_process:
@@ -427,7 +427,7 @@ def AcceptButton(user_id, work_id):
 
 
 
-    updateUserStatus(user_status_id, "working")
+    updateUserStatus(user_status_id, "Working")
     updateUserStatusWorkApp(user_status_id, recruiter_address)
     email = user_doc["email"]
     EmailNotification(email, "Accepted", text)
@@ -604,5 +604,6 @@ def notiUserAppToRecruiter(work_id, user_id):
     nowdate = getNowDate()
     recnoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
     recnoti_body["text"] = text
-    RecruitersNotificationCollection.insert_one(recnoti_body)
+    rnoti = RecruitersNotificationCollection.insert_one(recnoti_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"notification": str(rnoti.inserted_id)}})
     EmailNotification(recruiter_email, "มีผู้สมัครเข้ามาในงานของคุณ", text)

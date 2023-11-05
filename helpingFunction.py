@@ -129,7 +129,7 @@ def isEndWorkProcess(work_id: str):
     for uid,sid in wstatus.items():
         if uid in wworker:
             status = UserStatusInWorkCollection.find_one({"_id": ObjectId(sid)})["user_status"]
-            if status == "working":
+            if status == "Working":
                 return False
     return True
 
@@ -166,7 +166,7 @@ def manageMoneyExchange(work_id, user_id):
     
     #update status section
     user_stat_id = workdoc["user_status"][user_id]
-    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "paid"}})
+    UserStatusInWorkCollection.update_one({"_id": ObjectId(user_stat_id)}, {"$set": {"user_status": "Paid"}})
 
 
 
