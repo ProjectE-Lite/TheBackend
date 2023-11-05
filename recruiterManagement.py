@@ -69,7 +69,7 @@ def getRecMoneyExchangeMonthly(rid: str, month:str):
     return {"in": inn ,"out": out}
 
 def getRecMoneyMonthly(rid: str):
-    ans = {}
+    ans = []
     month = []
     for i in getRecListOfMoneyExchange(rid):
         x = getMoneyExchange(i)
@@ -77,7 +77,8 @@ def getRecMoneyMonthly(rid: str):
         if m not in month:
             month.append(m)
     for m in month:
-        ans[m] = getRecMoneyExchangeMonthly(rid, str(m))
+        ans.append(str(m))
+        ans.append(getRecMoneyExchangeMonthly(rid, str(m)))
     return ans
 
 
