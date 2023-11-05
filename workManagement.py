@@ -306,7 +306,7 @@ def getListOfWorker(work_id):
 
 
 def penalizedUserCredit(user_id, work_id):
-    penalty = 500
+    penalty = 100
     uinfo = UsersCollection.find_one({"_id": ObjectId(user_id)})
     recruiter_id = WorksCollection.find_one({"_id": ObjectId(work_id)})["recruiter_id"]
 
@@ -326,8 +326,9 @@ def penalizedUserCredit(user_id, work_id):
     nowdate = getNowDate()
     usernoti_body["recruiter_id"] = str(recruiter_id)
     usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
-    usernoti_body["text"] = f"ท่านโดนหักคะแนน 500 credit เนื่องจากไม่มาทำงานกับ {workdoc['name']} ตามเวลา"
-    UsersNotificationCollection.insert_one(usernoti_body)
+    usernoti_body["text"] = f"ท่านโดนหักคะแนน 100 credit เนื่องจากไม่มาทำงานกับ {workdoc['name']} ตามเวลา"
+    unoti = UsersNotificationCollection.insert_one(usernoti_body)
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"notification": str(unoti.inserted_id)}})
 
     if not uinfo:
         raise HTTPException(status_code=400, detail="User not found")
@@ -369,7 +370,8 @@ def AppointmentButton(user_id, work_id, date, time):
     usernoti_body["recruiter_id"] = str(recruiter_id)
     usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
     usernoti_body["text"] = text
-    UsersNotificationCollection.insert_one(usernoti_body)
+    unoti = UsersNotificationCollection.insert_one(usernoti_body)
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"notification": str(unoti.inserted_id)}})
 
     email = UsersCollection.find_one({"_id": ObjectId(user_id)})["email"]
     EmailNotification(email, "Appointment", text)
@@ -397,6 +399,8 @@ def AcceptButton(user_id, work_id):
     recruiter_address =recruiter_doc["address"]
     work_doc = WorksCollection.find_one({"_id": ObjectId(work_id)})
     work_type = work_doc["type_of_work"]
+    work_date = work_doc["work_date"]
+    work_starttime = work_doc["start_time"]
     
     if work_type in type_work_mapping.keys():
         work_type = type_work_mapping[work_type]
@@ -406,6 +410,8 @@ def AcceptButton(user_id, work_id):
         สวัสดีคุณ {user_first_name} {user_last_name},
 
         การยื่นสมัครงานสำหรับ {work_type} ของคุณกับ {recruiter_name} ได้รับการยอมรับแล้ว
+        วัน : {work_date}
+        เวลา : {work_starttime}
         สถานที่ : {recruiter_address}
         โปรดมาให้ถึงที่ทำงานก่อนเวลาทำงาน 30 นาทีเพื่อเตรียมตัวให้พร้อมสำหรับงาน
 
@@ -423,8 +429,8 @@ def AcceptButton(user_id, work_id):
     nowdate = getNowDate()
     usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
     usernoti_body["text"] = text
-    UsersNotificationCollection.insert_one(usernoti_body)
-
+    unoti = UsersNotificationCollection.insert_one(usernoti_body)
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"notification": str(unoti.inserted_id)}})
 
 
     updateUserStatus(user_status_id, "Working")

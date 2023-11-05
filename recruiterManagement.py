@@ -112,8 +112,9 @@ def topupRecruiterCredit(recruiter_id, credit):
     recnoti_body["user_id"] = 0
     recnoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
     recnoti_body["text"] = f"ท่านได้เติม credit จำนวน {credit}"
-    RecruitersNotificationCollection.insert_one(recnoti_body)
-    
+    rnoti = RecruitersNotificationCollection.insert_one(recnoti_body)
+    RecruitersCollection.update_one({"_id": ObjectId(recruiter_id)}, {"$addToSet": {"notification": str(rnoti.inserted_id)}})
+
     return {"detail": f"Added {credit} credit to {recruiter_id}"}
 
 def checkHaveWorkedWith(recruiter_id: str, user_id: str):

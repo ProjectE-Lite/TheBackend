@@ -121,6 +121,8 @@ def withdrawUserCredit(uid: str,credit: int):
     usernoti_body["date"] = nowdate[0]+'-'+nowdate[1]+'-'+nowdate[2]
     usernoti_body["recruiter_id"] = 0
     usernoti_body["text"] = f"ท่านได้ถอนเงินจำนวณ {credit} ออกจากระบบ"
+    unoti = UsersNotificationCollection.insert_one(usernoti_body)
+    UsersCollection.update_one({"_id": ObjectId(uid)}, {"$addToSet": {"notification": str(unoti.inserted_id)}})
 
     return {"details": f"Tranferred {credit} credit to Bank", "account_credit": values}
 

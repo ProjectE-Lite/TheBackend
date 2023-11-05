@@ -197,8 +197,8 @@ def manageMoneyExchange(work_id, user_id):
     nowdate = getNowDate()
     usernoti_body["date"] = nowdate[0] + '-' + nowdate[1] + '-' + nowdate[2]
     usernoti_body["text"] = body
-    UsersNotificationCollection.insert_one(usernoti_body)
-    
+    unoti = UsersNotificationCollection.insert_one(usernoti_body)
+    UsersCollection.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"notification": str(unoti.inserted_id)}})
     
     EmailNotification(userdoc["email"], subject, body)
     
