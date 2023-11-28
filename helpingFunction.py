@@ -240,3 +240,8 @@ def convert(lst):
    for i in range(len(lst)):
        res_dict[lst[i][0]] = lst[i][1]
    return res_dict
+
+
+
+def testWebHook(x):
+    print("success")
