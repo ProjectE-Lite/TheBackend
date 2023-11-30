@@ -244,5 +244,5 @@ def convert(lst):
 
 
 def testWebHook(x):
-    print("bokotaaa")
+    print("medein")
     print('inteasd')
